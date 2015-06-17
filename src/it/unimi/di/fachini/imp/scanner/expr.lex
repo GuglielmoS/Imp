@@ -59,6 +59,8 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 
 	"(" {return sf.newSymbol("OPEN_PAREN", ParserSym.OPEN_PAREN);}
 	")" {return sf.newSymbol("CLOSE_PAREN", ParserSym.CLOSE_PAREN);}
+	"{" {return sf.newSymbol("OPEN_CURLY_BRACE", ParserSym.OPEN_CURLY_BRACE);}
+	"}" {return sf.newSymbol("ClOSE_CURLY_BRACE", ParserSym.ClOSE_CURLY_BRACE);}
 
 	/*
 	 * Assignments 
@@ -67,15 +69,18 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"=" {return sf.newSymbol("ASSIGNTO", ParserSym.ASSIGNTO);}
 
 	/*
+	 * Reserved keywords.
+	 */
+	"var"  {return sf.newSymbol("VAR", ParserSym.VAR);}
+	"if"   {return sf.newSymbol("IF", ParserSym.IF);}
+	"else" {return sf.newSymbol("ELSE", ParserSym.ELSE);}
+	"while" {return sf.newSymbol("WHILE", ParserSym.WHILE);}
+
+	/*
 	 * Numbers
 	 */
 	
 	{Digit}+ {return sf.newSymbol("NUM", ParserSym.NUM, new Integer(yytext()));}
-	
-	/*
-	 * Reserved keywords.
-	 */
-	"var" {return sf.newSymbol("VAR", ParserSym.VAR);}
 	
 	/*
 	 * Identifiers

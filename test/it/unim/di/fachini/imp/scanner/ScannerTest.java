@@ -114,12 +114,15 @@ public class ScannerTest {
 
 	@Test
 	public void testReservedKeywords() {
-		StringReader buf = new StringReader("var");
+		StringReader buf = new StringReader("var if else while");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 
 		try {
 			assertEquals(ParserSym.VAR, scanner.next_token().sym);
+			assertEquals(ParserSym.IF, scanner.next_token().sym);
+			assertEquals(ParserSym.ELSE, scanner.next_token().sym);
+			assertEquals(ParserSym.WHILE, scanner.next_token().sym);
 			assertEquals(ParserSym.EOF, scanner.next_token().sym);
 		} catch (IOException e) {
 			fail("Scanner error: " + e.getMessage());

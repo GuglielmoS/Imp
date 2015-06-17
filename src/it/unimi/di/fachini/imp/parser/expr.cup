@@ -2,6 +2,9 @@ package it.unimi.di.fachini.imp.parser;
 
 import it.unimi.di.fachini.imp.compiler.*;
 import it.unimi.di.fachini.imp.compiler.ast.*;
+import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
+import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
+import it.unimi.di.fachini.imp.compiler.ast.statement.StatementFactory;
 
 import java_cup.runtime.*;
 
@@ -26,9 +29,9 @@ terminal PLUS, MINUS, MUL, DIV, MOD, UNARY;
 // assignments
 terminal ASSIGNTO;
 // parenthesis
-terminal OPEN_PAREN, CLOSE_PAREN;
+terminal OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY_BRACE, ClOSE_CURLY_BRACE;
 // reserved keywords
-terminal VAR;
+terminal VAR, IF, ELSE, WHILE;
 // atomitc values
 terminal Integer NUM;
 terminal String IDENT;
@@ -39,10 +42,13 @@ terminal String IDENT;
 
 non terminal Program prog;
 non terminal List<Statement> seqDeclAndStmts;
-non terminal Declaration decl;
+non terminal Statement decl;
 non terminal List<Descriptor> identSeq;
 non terminal Statement stmt;
 non terminal Statement assignment;
+non terminal Statement ifStmt;
+non terminal Statement whileStmt;
+non terminal Statement block;
 non terminal Expr expr;
 
 /**
@@ -61,19 +67,16 @@ prog ::= seqDeclAndStmts:s
 		 {: RESULT = new Program(s, symbolTable); :}
 	   ;
 
-seqDeclAndStmts ::=
-		// sequence of variables declaration
-		seqDeclAndStmts:seq decl:d
-	  	{: seq.add(d); RESULT = seq; :}
-	  	// sequence of statements
-	  | seqDeclAndStmts:seq stmt:s
-		{:  seq.add(s); RESULT = seq; :} 
-	  |	// empty
-		{: RESULT = new ArrayList<>(); :}
-	  ;
+seqDeclAndStmts ::= seqDeclAndStmts:seq decl:d
+	  				{: seq.add(d); RESULT = seq; :}
+	  			  | seqDeclAndStmts:seq stmt:s
+					{:  seq.add(s); RESULT = seq; :} 
+	 	 		  |	// empty
+					{: RESULT = new ArrayList<>(); :}
+	  			  ;
 
 decl ::= VAR identSeq:identifiers SEMI_COLON
-		 {: RESULT = new Declaration(identifiers); :}
+		 {: RESULT = StatementFactory.declaration(identifiers); :}
 	   ;
 
 identSeq ::= IDENT:id
@@ -97,12 +100,16 @@ identSeq ::= IDENT:id
 			 :}
 		   ;
 
-stmt ::= expr:e SEMI_COLON
-	   	 {: RESULT = e; :}
-	   | assignment:assignStmt
+stmt ::= assignment:assignStmt
 	   	 {: RESULT = assignStmt; :}
+	   | ifStmt:ifStatement
+	   	 {: RESULT = ifStatement; :}
+	   | whileStmt:whileStatement
+	   	 {: RESULT = whileStatement; :}
+	   | block:blockStatement
+	   	 {: RESULT = blockStatement; :}
 	   | SEMI_COLON
-	   	 {: RESULT = AtomFactory.nop(); :}
+	   	 {: RESULT = StatementFactory.nop(); :}
 	   ;
 
 assignment ::= IDENT:ident ASSIGNTO expr:e SEMI_COLON
@@ -116,17 +123,21 @@ assignment ::= IDENT:ident ASSIGNTO expr:e SEMI_COLON
 		       :}
 		 	 ;
 
-expr ::= expr:e1 PLUS expr:e2
-	 	 {: RESULT = BinaryOpFactory.add(e1, e2); :}
-	   | expr:e1 MINUS expr:e2
-	   	 {: RESULT = BinaryOpFactory.sub(e1, e2); :}
-	   | expr:e1 MUL expr:e2
-	   	 {: RESULT = BinaryOpFactory.mul(e1, e2); :}
-	   | expr:e1 DIV expr:e2
-	   	 {: RESULT = BinaryOpFactory.div(e1, e2); :}
-	   | expr:e1 MOD expr:e2
-	   	 {: RESULT = BinaryOpFactory.mod(e1, e2); :}
-	   | NUM:n
+ifStmt ::= IF OPEN_PAREN expr:condition CLOSE_PAREN stmt:consequent
+		   {: RESULT = StatementFactory.ifStmt(condition, consequent); :}
+		 | IF OPEN_PAREN expr:condition CLOSE_PAREN stmt:consequent ELSE stmt:alternative
+		   {: RESULT = StatementFactory.ifStmt(condition, consequent, alternative); :}
+		 ;
+
+whileStmt ::= WHILE OPEN_PAREN expr:condition CLOSE_PAREN stmt:body
+			  {: RESULT = StatementFactory.whileStmt(condition, body); :}
+			; 
+
+block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
+		  {: RESULT = StatementFactory.block(statements); :}
+		;
+
+expr ::= NUM:n
 	   	 {: RESULT = AtomFactory.num(n); :}
 	   | IDENT:ident {:
 			// throw an exception if an identifier has not been previously declared
@@ -136,11 +147,21 @@ expr ::= expr:e1 PLUS expr:e2
 			Descriptor d = symbolTable.get(ident);
 			RESULT = AtomFactory.var(d);
 		 :}
+	   | expr:e1 PLUS expr:e2
+	 	 {: RESULT = ArithOpFactory.add(e1, e2); :}
+	   | expr:e1 MINUS expr:e2
+	   	 {: RESULT = ArithOpFactory.sub(e1, e2); :}
+	   | expr:e1 MUL expr:e2
+	   	 {: RESULT = ArithOpFactory.mul(e1, e2); :}
+	   | expr:e1 DIV expr:e2
+	   	 {: RESULT = ArithOpFactory.div(e1, e2); :}
+	   | expr:e1 MOD expr:e2
+	   	 {: RESULT = ArithOpFactory.mod(e1, e2); :}
 	   | MINUS expr:e
-	   	 {: RESULT = UnaryOpFactory.minus(e); :}
+	   	 {: RESULT = ArithOpFactory.unaryMinus(e); :}
 	     %prec UNARY
 	   | PLUS expr:e
-	     {: RESULT = UnaryOpFactory.plus(e); :}
+	     {: RESULT = ArithOpFactory.unaryPlus(e); :}
 	     %prec UNARY
 	   | OPEN_PAREN expr:e CLOSE_PAREN
 	     {: RESULT = e; :}

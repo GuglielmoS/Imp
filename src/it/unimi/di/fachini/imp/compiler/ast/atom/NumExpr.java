@@ -5,10 +5,14 @@ import it.unimi.di.fachini.imp.compiler.ast.Expr;
 public class NumExpr extends Expr {
 	private final Integer value;
 
-	public NumExpr(Integer value) {
+	NumExpr(Integer value) {
 		this.value = value;
 	}
 
+	public Integer getValue() {
+		return value;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

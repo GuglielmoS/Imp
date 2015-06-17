@@ -8,22 +8,27 @@ package it.unimi.di.fachini.imp.parser;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int NUM = 14;
-  public static final int MINUS = 5;
-  public static final int IDENT = 15;
-  public static final int SEMI_COLON = 3;
-  public static final int ASSIGNTO = 10;
-  public static final int MOD = 8;
-  public static final int EOF = 0;
-  public static final int PLUS = 4;
-  public static final int VAR = 13;
-  public static final int OPEN_PAREN = 11;
-  public static final int DIV = 7;
-  public static final int error = 1;
-  public static final int COMMA = 2;
-  public static final int MUL = 6;
-  public static final int CLOSE_PAREN = 12;
   public static final int UNARY = 9;
+  public static final int MOD = 8;
+  public static final int OPEN_PAREN = 11;
+  public static final int IDENT = 20;
+  public static final int ELSE = 17;
+  public static final int PLUS = 4;
+  public static final int WHILE = 18;
+  public static final int SEMI_COLON = 3;
+  public static final int IF = 16;
+  public static final int ClOSE_CURLY_BRACE = 14;
+  public static final int NUM = 19;
+  public static final int OPEN_CURLY_BRACE = 13;
+  public static final int COMMA = 2;
+  public static final int EOF = 0;
+  public static final int DIV = 7;
+  public static final int CLOSE_PAREN = 12;
+  public static final int MINUS = 5;
+  public static final int error = 1;
+  public static final int ASSIGNTO = 10;
+  public static final int MUL = 6;
+  public static final int VAR = 15;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -38,7 +43,12 @@ public class ParserSym {
   "ASSIGNTO",
   "OPEN_PAREN",
   "CLOSE_PAREN",
+  "OPEN_CURLY_BRACE",
+  "ClOSE_CURLY_BRACE",
   "VAR",
+  "IF",
+  "ELSE",
+  "WHILE",
   "NUM",
   "IDENT"
   };

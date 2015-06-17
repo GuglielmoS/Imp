@@ -4,17 +4,21 @@ import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class VarExpr extends Expr {
-	private Descriptor d;
+	private Descriptor descriptor;
 
-	public VarExpr(Descriptor d) {
-		this.d = d;
+	VarExpr(Descriptor descriptor) {
+		this.descriptor = descriptor;
 	}
 
+	public Descriptor getDescriptor() {
+		return descriptor;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((d == null) ? 0 : d.hashCode());
+		result = prime * result + ((descriptor == null) ? 0 : descriptor.hashCode());
 		return result;
 	}
 
@@ -27,10 +31,10 @@ public class VarExpr extends Expr {
 		if (getClass() != obj.getClass())
 			return false;
 		VarExpr other = (VarExpr) obj;
-		if (d == null) {
-			if (other.d != null)
+		if (descriptor == null) {
+			if (other.descriptor != null)
 				return false;
-		} else if (!d.equals(other.d))
+		} else if (!descriptor.equals(other.descriptor))
 			return false;
 		return true;
 	}

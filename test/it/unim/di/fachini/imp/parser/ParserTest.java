@@ -1,16 +1,19 @@
 package it.unim.di.fachini.imp.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.Program;
 import it.unimi.di.fachini.imp.compiler.CompilerError;
-import it.unimi.di.fachini.imp.compiler.ast.AtomFactory;
-import it.unimi.di.fachini.imp.compiler.ast.BinaryOpFactory;
-import it.unimi.di.fachini.imp.compiler.ast.Declaration;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
+import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
+import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.DeclarationStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
 import it.unimi.di.fachini.imp.parser.Parser;
 import it.unimi.di.fachini.imp.scanner.Scanner;
 
@@ -31,7 +34,7 @@ public class ParserTest {
 		Parser parser = new Parser(scanner, sf);
 
 		try {
-			Program program = (Program)parser.parse().value;
+			Program program = (Program) parser.parse().value;
 			List<Statement> statements = program.getStatements();
 			assertTrue(statements.isEmpty());
 		} catch (Exception e) {
@@ -47,31 +50,10 @@ public class ParserTest {
 		Parser parser = new Parser(scanner, sf);
 
 		try {
-			Program program = (Program)parser.parse().value;
+			Program program = (Program) parser.parse().value;
 			List<Statement> statements = program.getStatements();
 			assertEquals(5, statements.size());
-		} catch (Exception e) {
-			fail("Parser error: " + e.getMessage());
-		}
-	}
-
-	@Test
-	public void testSinleExprProgram() {
-		StringReader buf = new StringReader("123*3+456-987;");
-		ComplexSymbolFactory sf = new ComplexSymbolFactory();
-		Scanner scanner = new Scanner(buf, sf);
-		Parser parser = new Parser(scanner, sf);
-
-		try {
-			Program program = (Program)parser.parse().value;
-			List<Statement> statements = program.getStatements();
-			assertEquals(1, statements.size());
-			Expr expected = BinaryOpFactory.sub(
-					BinaryOpFactory.add(
-							BinaryOpFactory.mul(AtomFactory.num(123), AtomFactory.num(3)),
-							AtomFactory.num(456)),
-					AtomFactory.num(987));
-			assertEquals(expected, statements.get(0));
+			assertTrue(statements.stream().allMatch(s -> s instanceof EmptyStatement));
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}
@@ -85,18 +67,22 @@ public class ParserTest {
 		Parser parser = new Parser(scanner, sf);
 
 		try {
-			Program program = (Program)parser.parse().value;
+			Program program = (Program) parser.parse().value;
 			List<Statement> statements = program.getStatements();
 			assertEquals(1, statements.size());
-			assertTrue(statements.get(0) instanceof Declaration);
+			assertTrue(statements.get(0) instanceof DeclarationStatement);
+			List<Descriptor> ids = ((DeclarationStatement)statements.get(0)).getDeclaredIdentifiers();
+			assertEquals("a", ids.get(0).getId());
+			assertEquals("b", ids.get(1).getId());
+			assertEquals("c", ids.get(2).getId());
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}
 	}
 
-	@Test(expected=CompilerError.class)
+	@Test(expected = CompilerError.class)
 	public void testUndeclaredVar() throws Exception {
-		StringReader buf = new StringReader("a*b;");
+		StringReader buf = new StringReader("a = 42;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
@@ -104,41 +90,42 @@ public class ParserTest {
 	}
 
 	@Test
-	public void testSymbolTable() {
-		StringReader buf = new StringReader("var a, b, c; a + b - c;");
+	public void testSinleExprProgram() {
+		StringReader buf = new StringReader("var a; a = 123*3+456-987;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
 
 		try {
-			Program program = (Program)parser.parse().value;
+			Program program = (Program) parser.parse().value;
 			List<Statement> statements = program.getStatements();
 			assertEquals(2, statements.size());
-			assertTrue(program.getSymbolTable().contains("a"));
-			assertTrue(program.getSymbolTable().contains("b"));
-			assertTrue(program.getSymbolTable().contains("c"));
+			Expr expected = ArithOpFactory.sub(
+					ArithOpFactory.add(ArithOpFactory.mul(AtomFactory.num(123),
+							AtomFactory.num(3)), AtomFactory.num(456)),
+					AtomFactory.num(987));
+			assertTrue(statements.get(1) instanceof AssignStatement);
+			assertEquals(expected,
+					((AssignStatement) statements.get(1)).getValue());
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}
 	}
 
 	@Test
-	public void testSequence() {
-		StringReader buf = new StringReader("1*2;2+1;");
+	public void testSymbolTable() {
+		StringReader buf = new StringReader("var a, b, c;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
 
 		try {
-			Program program = (Program)parser.parse().value;
+			Program program = (Program) parser.parse().value;
 			List<Statement> statements = program.getStatements();
-			assertEquals(2, statements.size());
-			// check the first statement (1*2)
-			Expr expectedFirst = BinaryOpFactory.mul(AtomFactory.num(1), AtomFactory.num(2));
-			assertEquals(expectedFirst, statements.get(0));
-			// check the second statement (1*2)
-			Expr expectedSecond = BinaryOpFactory.add(AtomFactory.num(2), AtomFactory.num(1));
-			assertEquals(expectedSecond, statements.get(1));
+			assertEquals(1, statements.size());
+			assertTrue(program.getSymbolTable().contains("a"));
+			assertTrue(program.getSymbolTable().contains("b"));
+			assertTrue(program.getSymbolTable().contains("c"));
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}
@@ -152,11 +139,128 @@ public class ParserTest {
 		Parser parser = new Parser(scanner, sf);
 
 		try {
-			Program program = (Program)parser.parse().value;
+			Program program = (Program) parser.parse().value;
 			List<Statement> statements = program.getStatements();
 			assertEquals(2, statements.size());
-			assertTrue(statements.get(0) instanceof Declaration);
+			assertTrue(statements.get(0) instanceof DeclarationStatement);
+			List<Descriptor> ids = ((DeclarationStatement)statements.get(0)).getDeclaredIdentifiers();
+			assertFalse(ids.isEmpty());
+			assertEquals("a", ids.get(0).getId());
 			assertTrue(statements.get(1) instanceof AssignStatement);
+			AssignStatement assignment = (AssignStatement)statements.get(1);
+			assertEquals("a", assignment.getTarget().getId());
+			assertEquals(AtomFactory.num(10), assignment.getValue());
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testIfWithoutElse() {
+		StringReader buf = new StringReader("if (1) ;");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof IfStatement);
+			IfStatement ifStmt = (IfStatement)statements.get(0);
+			assertEquals(AtomFactory.num(1), ifStmt.getCondition());
+			assertTrue(ifStmt.getConsequent() instanceof EmptyStatement);
+			assertFalse(ifStmt.hasAlternative());
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testIfWithElse() {
+		StringReader buf = new StringReader("if (1) ; else ;");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof IfStatement);
+			IfStatement ifStmt = (IfStatement)statements.get(0);
+			assertEquals(AtomFactory.num(1), ifStmt.getCondition());
+			assertTrue(ifStmt.getConsequent() instanceof EmptyStatement);
+			assertTrue(ifStmt.hasAlternative());
+			assertTrue(ifStmt.getAlternative() instanceof EmptyStatement);
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testDanglingElse() {
+		StringReader buf = new StringReader("if (1) if (2) ; else ;");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof IfStatement);
+			// outer if
+			IfStatement outerIf = (IfStatement)statements.get(0);
+			assertEquals(AtomFactory.num(1), outerIf.getCondition());
+			assertTrue(outerIf.getConsequent() instanceof IfStatement);
+			assertFalse(outerIf.hasAlternative());
+			// inner if
+			assertTrue(outerIf.getConsequent() instanceof IfStatement);
+			IfStatement innerIf = (IfStatement)outerIf.getConsequent();
+			assertEquals(AtomFactory.num(2), innerIf.getCondition());
+			assertTrue(innerIf.getConsequent() instanceof EmptyStatement);
+			assertTrue(innerIf.hasAlternative());
+			assertTrue(innerIf.getConsequent() instanceof EmptyStatement);
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testWhileWithEmptyBody() {
+		StringReader buf = new StringReader("while (1);");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof WhileStatement);
+			WhileStatement whileStmt = (WhileStatement)statements.get(0);
+			assertEquals(AtomFactory.num(1), whileStmt.getCondition());
+			assertTrue(whileStmt.getBody() instanceof EmptyStatement);
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testEmptyBlock() {
+		StringReader buf = new StringReader("{}");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof BlockStatement);
+			BlockStatement block = (BlockStatement)statements.get(0);
+			assertTrue(block.getStatements().isEmpty());
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}

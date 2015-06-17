@@ -1,9 +1,9 @@
-package it.unimi.di.fachini.imp.compiler.ast.atom;
+package it.unimi.di.fachini.imp.compiler.ast.statement;
 
-import it.unimi.di.fachini.imp.compiler.ast.Expr;
+import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
-public class EmptyExpr extends Expr {
-	public EmptyExpr() {
+public class EmptyStatement extends Statement {
+	EmptyStatement() {
 		// DO NOTHING
 	}
 

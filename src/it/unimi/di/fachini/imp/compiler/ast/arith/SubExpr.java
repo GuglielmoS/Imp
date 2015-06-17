@@ -6,9 +6,17 @@ public class SubExpr extends Expr {
 	private final Expr left;
 	private final Expr right;
 
-	public SubExpr(Expr left, Expr right) {
+	SubExpr(Expr left, Expr right) {
 		this.left = left;
 		this.right = right;
+	}
+
+	public Expr getLeft() {
+		return left;
+	}
+
+	public Expr getRight() {
+		return right;
 	}
 
 	@Override
