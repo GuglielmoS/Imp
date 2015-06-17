@@ -1,0 +1,109 @@
+package it.unimi.di.fachini.imp.parser;
+
+import it.unimi.di.fachini.imp.compiler.*;
+import it.unimi.di.fachini.imp.compiler.ast.*;
+
+import java_cup.runtime.*;
+
+import java.util.List;
+import java.util.ArrayList;
+
+class Parser;
+
+// add a reference to the symbol table
+action code {:
+	protected SymbolTable symbolTable = new SymbolTable();
+:}
+
+/**
+ * Tokens
+ */
+
+// delimiters
+terminal COMMA, SEMI_COLON;
+// arithmetic operators
+terminal PLUS, MINUS, MUL, DIV, MOD, UNARY;
+// parenthesis
+terminal OPEN_PAREN, CLOSE_PAREN;
+// reserved keywords
+terminal VAR;
+// atomitc values
+terminal Integer NUM;
+terminal String IDENT;
+
+/**
+ * AST
+ */
+
+non terminal Program prog;
+non terminal List<Expr> seq;
+non terminal Declaration decl;
+non terminal List<String> identSeq;
+non terminal Expr expr;
+
+/**
+ * Precedence and associativity
+ */
+
+precedence left PLUS, MINUS;
+precedence left MUL, DIV, MOD;
+precedence nonassoc UNARY;
+
+start with prog;
+
+/* productions */
+
+prog ::= seq:s
+		 {: RESULT = new Program(s, symbolTable); :}
+	   ;
+
+seq ::= seq:s decl:d
+	  	{: s.add(d); RESULT = s; :}
+	  | seq:s expr:e
+		{:  s.add(e); RESULT = s; :} 
+	  |	// empty
+		{: RESULT = new ArrayList<>(); :}
+	  ;
+
+decl ::= VAR identSeq:identifiers SEMI_COLON
+		 {: RESULT = new Declaration(identifiers); :}
+	   ;
+
+identSeq ::= IDENT:id
+		   	 {: List<String> lst = new ArrayList<>();
+				lst.add(id);
+				RESULT = lst; :}
+		   | identSeq:identifiers COMMA IDENT:id
+		   	 {: identifiers.add(id); RESULT = identifiers; :}
+		   ;
+
+expr ::= expr:e1 PLUS expr:e2
+	 	 {: RESULT = BinaryOpFactory.add(e1, e2); :}
+	   | expr:e1 MINUS expr:e2
+	   	 {: RESULT = BinaryOpFactory.sub(e1, e2); :}
+	   | expr:e1 MUL expr:e2
+	   	 {: RESULT = BinaryOpFactory.mul(e1, e2); :}
+	   | expr:e1 DIV expr:e2
+	   	 {: RESULT = BinaryOpFactory.div(e1, e2); :}
+	   | expr:e1 MOD expr:e2
+	   	 {: RESULT = BinaryOpFactory.mod(e1, e2); :}
+	   | NUM:n
+	   	 {: RESULT = AtomFactory.num(n); :}
+	   | IDENT:ident {:
+			/* throw an exception if an identifier has not been previously declared
+			if (!symbolTable.contains(ident)) {
+				throw new CompilerError("Undeclared identifier found: " + ident);	
+			}
+			Descriptor d = symbolTable.addIdent(ident);
+			*/
+			RESULT = AtomFactory.var(ident);
+		 :}
+	   | MINUS expr:e
+	   	 {: RESULT = UnaryOpFactory.minus(e); :}
+	     %prec UNARY
+	   | PLUS expr:e
+	     {: RESULT = UnaryOpFactory.plus(e); :}
+	     %prec UNARY
+	   | OPEN_PAREN expr:e CLOSE_PAREN
+	     {: RESULT = e; :}
+	   ;
