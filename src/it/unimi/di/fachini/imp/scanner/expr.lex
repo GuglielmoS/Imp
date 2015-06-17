@@ -37,6 +37,13 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"/*" [^*] ~"*/" | "/*" "*"+ "/" { /* DO NOTHING (eat the comment) */ }
 
 	/*
+	 * Delimiters
+	 */
+	
+	";" {return sf.newSymbol("SEMI_COLON", ParserSym.SEMI_COLON);}
+	"," {return sf.newSymbol("COMMA", ParserSym.COMMA);}
+
+	/*
 	 * Arithmetic operators
 	 */
 
@@ -47,14 +54,18 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"+" {return sf.newSymbol("PLUS", ParserSym.PLUS);}
 
 	/*
-	 * Delimiters
+	 * Parenthesis
 	 */
-	
-	";" {return sf.newSymbol("SEMI_COLON", ParserSym.SEMI_COLON);}
-	"," {return sf.newSymbol("COMMA", ParserSym.COMMA);}
+
 	"(" {return sf.newSymbol("OPEN_PAREN", ParserSym.OPEN_PAREN);}
 	")" {return sf.newSymbol("CLOSE_PAREN", ParserSym.CLOSE_PAREN);}
-	
+
+	/*
+	 * Assignments 
+	 */
+
+	"=" {return sf.newSymbol("ASSIGNTO", ParserSym.ASSIGNTO);}
+
 	/*
 	 * Numbers
 	 */

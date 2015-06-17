@@ -32,5 +32,5 @@ public class NumExpr extends Expr {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
-	}	
+	}
 }

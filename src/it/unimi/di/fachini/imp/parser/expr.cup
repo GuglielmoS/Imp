@@ -23,6 +23,8 @@ action code {:
 terminal COMMA, SEMI_COLON;
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, UNARY;
+// assignments
+terminal ASSIGNTO;
 // parenthesis
 terminal OPEN_PAREN, CLOSE_PAREN;
 // reserved keywords
@@ -36,9 +38,11 @@ terminal String IDENT;
  */
 
 non terminal Program prog;
-non terminal List<Expr> seq;
+non terminal List<Statement> seqDeclAndStmts;
 non terminal Declaration decl;
-non terminal List<String> identSeq;
+non terminal List<Descriptor> identSeq;
+non terminal Statement stmt;
+non terminal Statement assignment;
 non terminal Expr expr;
 
 /**
@@ -53,14 +57,17 @@ start with prog;
 
 /* productions */
 
-prog ::= seq:s
+prog ::= seqDeclAndStmts:s
 		 {: RESULT = new Program(s, symbolTable); :}
 	   ;
 
-seq ::= seq:s decl:d
-	  	{: s.add(d); RESULT = s; :}
-	  | seq:s expr:e
-		{:  s.add(e); RESULT = s; :} 
+seqDeclAndStmts ::=
+		// sequence of variables declaration
+		seqDeclAndStmts:seq decl:d
+	  	{: seq.add(d); RESULT = seq; :}
+	  	// sequence of statements
+	  | seqDeclAndStmts:seq stmt:s
+		{:  seq.add(s); RESULT = seq; :} 
 	  |	// empty
 		{: RESULT = new ArrayList<>(); :}
 	  ;
@@ -70,12 +77,44 @@ decl ::= VAR identSeq:identifiers SEMI_COLON
 	   ;
 
 identSeq ::= IDENT:id
-		   	 {: List<String> lst = new ArrayList<>();
-				lst.add(id);
-				RESULT = lst; :}
+		   	 {:
+				if (symbolTable.contains(id)) {
+					throw new CompilerError("Multiple declaration of " + id);
+				}
+				List<Descriptor> lst = new ArrayList<>();
+				Descriptor d = symbolTable.addIdent(id);
+				lst.add(d);
+				RESULT = lst;
+			 :}
 		   | identSeq:identifiers COMMA IDENT:id
-		   	 {: identifiers.add(id); RESULT = identifiers; :}
+		   	 {:
+				if (symbolTable.contains(id)) {
+					throw new CompilerError("Multiple declaration of " + id);
+				}
+				Descriptor d = symbolTable.addIdent(id);
+				identifiers.add(d);
+				RESULT = identifiers;
+			 :}
 		   ;
+
+stmt ::= expr:e SEMI_COLON
+	   	 {: RESULT = e; :}
+	   | assignment:assignStmt
+	   	 {: RESULT = assignStmt; :}
+	   | SEMI_COLON
+	   	 {: RESULT = AtomFactory.nop(); :}
+	   ;
+
+assignment ::= IDENT:ident ASSIGNTO expr:e SEMI_COLON
+			   {:
+					// throw an exception if an identifier has not been previously declared
+			   		if (!symbolTable.contains(ident)) {
+			       		throw new CompilerError("Undeclared identifier: " + ident);	
+			   		}
+			   		Descriptor d = symbolTable.get(ident);
+		       		RESULT = StatementFactory.assign(d, e);
+		       :}
+		 	 ;
 
 expr ::= expr:e1 PLUS expr:e2
 	 	 {: RESULT = BinaryOpFactory.add(e1, e2); :}
@@ -90,13 +129,12 @@ expr ::= expr:e1 PLUS expr:e2
 	   | NUM:n
 	   	 {: RESULT = AtomFactory.num(n); :}
 	   | IDENT:ident {:
-			/* throw an exception if an identifier has not been previously declared
+			// throw an exception if an identifier has not been previously declared
 			if (!symbolTable.contains(ident)) {
-				throw new CompilerError("Undeclared identifier found: " + ident);	
+				throw new CompilerError("Undeclared identifier: " + ident);	
 			}
-			Descriptor d = symbolTable.addIdent(ident);
-			*/
-			RESULT = AtomFactory.var(ident);
+			Descriptor d = symbolTable.get(ident);
+			RESULT = AtomFactory.var(d);
 		 :}
 	   | MINUS expr:e
 	   	 {: RESULT = UnaryOpFactory.minus(e); :}

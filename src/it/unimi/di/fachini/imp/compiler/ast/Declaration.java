@@ -1,18 +1,20 @@
 package it.unimi.di.fachini.imp.compiler.ast;
 
+import it.unimi.di.fachini.imp.compiler.Descriptor;
+
 import java.util.List;
 
 public class Declaration extends Expr {
-	private final List<String> identifiers;
+	private final List<Descriptor> identifiers;
 
-	public Declaration(List<String> identifiers) {
+	public Declaration(List<Descriptor> identifiers) {
 		this.identifiers = identifiers;
 	}
 
-	public List<String> getDeclaredIdentifiers() {
+	public List<Descriptor> getDeclaredIdentifiers() {
 		return identifiers;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

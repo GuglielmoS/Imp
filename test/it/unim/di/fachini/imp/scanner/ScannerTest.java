@@ -99,6 +99,20 @@ public class ScannerTest {
 	}
 
 	@Test
+	public void testAssignments() {
+		StringReader buf = new StringReader("=");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
+			assertEquals(ParserSym.ASSIGNTO, scanner.next_token().sym);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
 	public void testReservedKeywords() {
 		StringReader buf = new StringReader("var");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();

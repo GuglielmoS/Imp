@@ -1,6 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast;
 
-public abstract class Expr extends Statement {
+public abstract class Statement {
 	@Override
 	public abstract int hashCode();
 	@Override

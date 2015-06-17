@@ -10,16 +10,20 @@ public class SymbolTable {
 		this.values = new HashMap<>();
 	}
 
-	public Descriptor addIdent(String id) {
-		if (!values.containsKey(id)) {
-			Descriptor descriptor = new Descriptor(id);
-			values.put(id, descriptor);
+	public Descriptor addIdent(String ident) {
+		if (!values.containsKey(ident)) {
+			Descriptor descriptor = new Descriptor(ident);
+			values.put(ident, descriptor);
 		}
 	
-		return values.get(id);
+		return values.get(ident);
 	}
 
-	public boolean contains(Descriptor descriptor) {
-		return values.containsKey(descriptor.getId());
+	public boolean contains(String ident) {
+		return values.containsKey(ident);
+	}
+
+	public Descriptor get(String ident) {
+		return values.get(ident);
 	}
 }
