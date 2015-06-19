@@ -1,18 +1,14 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
-import java.util.List;
-
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
+import java.util.List;
+
 public class StatementFactory {
 	public static Statement nop() {
 		return new EmptyStatement();
-	}
-
-	public static Statement declaration(List<Descriptor> identifiers) {
-		return new DeclarationStatement(identifiers);
 	}
 	
 	public static Statement assign(Descriptor ident, Expr value) {

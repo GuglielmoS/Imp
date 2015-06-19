@@ -1,5 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.arith;
 
+import org.objectweb.asm.MethodVisitor;
+
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class MulExpr extends Expr {
@@ -17,6 +19,11 @@ public class MulExpr extends Expr {
 
 	public Expr getRight() {
 		return right;
+	}
+
+	@Override
+	public void compile(MethodVisitor methodWriter) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.atom;
 
+import org.objectweb.asm.MethodVisitor;
+
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class NumExpr extends Expr {
@@ -12,7 +14,12 @@ public class NumExpr extends Expr {
 	public Integer getValue() {
 		return value;
 	}
-	
+
+	@Override
+	public void compile(MethodVisitor mw) {
+		mw.visitLdcInsn(Integer.toString(value));
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

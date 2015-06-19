@@ -2,15 +2,25 @@ package it.unimi.di.fachini.imp.compiler;
 
 public class Descriptor {
 	private final String id;
+	private int index;
 
 	public Descriptor(String id) {
 		this.id = id;
+		this.index = -1;
 	}
 
 	public String getId() {
 		return id;
 	}
 
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

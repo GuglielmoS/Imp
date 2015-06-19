@@ -114,7 +114,7 @@ public class ScannerTest {
 
 	@Test
 	public void testReservedKeywords() {
-		StringReader buf = new StringReader("var if else while");
+		StringReader buf = new StringReader("var if else while write writemsg writeln");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 
@@ -123,6 +123,9 @@ public class ScannerTest {
 			assertEquals(ParserSym.IF, scanner.next_token().sym);
 			assertEquals(ParserSym.ELSE, scanner.next_token().sym);
 			assertEquals(ParserSym.WHILE, scanner.next_token().sym);
+			assertEquals(ParserSym.WRITE, scanner.next_token().sym);
+			assertEquals(ParserSym.WRITEMSG, scanner.next_token().sym);
+			assertEquals(ParserSym.WRITELN, scanner.next_token().sym);
 			assertEquals(ParserSym.EOF, scanner.next_token().sym);
 		} catch (IOException e) {
 			fail("Scanner error: " + e.getMessage());

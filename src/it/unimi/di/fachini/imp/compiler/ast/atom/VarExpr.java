@@ -3,6 +3,9 @@ package it.unimi.di.fachini.imp.compiler.ast.atom;
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
+import static org.objectweb.asm.Opcodes.*;
+import org.objectweb.asm.MethodVisitor;
+
 public class VarExpr extends Expr {
 	private Descriptor descriptor;
 
@@ -13,7 +16,12 @@ public class VarExpr extends Expr {
 	public Descriptor getDescriptor() {
 		return descriptor;
 	}
-	
+
+	@Override
+	public void compile(MethodVisitor mw) {
+		mw.visitVarInsn(ILOAD, descriptor.getIndex());
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

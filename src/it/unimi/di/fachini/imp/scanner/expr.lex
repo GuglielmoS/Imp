@@ -75,6 +75,9 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"if"   {return sf.newSymbol("IF", ParserSym.IF);}
 	"else" {return sf.newSymbol("ELSE", ParserSym.ELSE);}
 	"while" {return sf.newSymbol("WHILE", ParserSym.WHILE);}
+	"write" {return sf.newSymbol("WRITE", ParserSym.WRITE);}
+	"writemsg" {return sf.newSymbol("WRITEMSG", ParserSym.WRITEMSG);}
+	"writeln" {return sf.newSymbol("WRITELN", ParserSym.WRITELN);}
 
 	/*
 	 * Numbers

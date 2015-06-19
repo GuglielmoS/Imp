@@ -1,5 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
+import org.objectweb.asm.MethodVisitor;
+
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
@@ -19,6 +21,11 @@ public class AssignStatement extends Statement {
 
 	public Expr getValue() {
 		return value;
+	}
+
+	@Override
+	public void compile(MethodVisitor methodWriter) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

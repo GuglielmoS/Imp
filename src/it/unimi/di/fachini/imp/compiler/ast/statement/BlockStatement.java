@@ -2,6 +2,8 @@ package it.unimi.di.fachini.imp.compiler.ast.statement;
 
 import java.util.List;
 
+import org.objectweb.asm.MethodVisitor;
+
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
 public class BlockStatement extends Statement {
@@ -22,6 +24,11 @@ public class BlockStatement extends Statement {
 		result = prime * result
 				+ ((statements == null) ? 0 : statements.hashCode());
 		return result;
+	}
+
+	@Override
+	public void compile(MethodVisitor methodWriter) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

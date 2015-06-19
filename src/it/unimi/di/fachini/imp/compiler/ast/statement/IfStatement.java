@@ -1,5 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
+import org.objectweb.asm.MethodVisitor;
+
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
@@ -35,7 +37,12 @@ public class IfStatement extends Statement {
 	public boolean hasAlternative() {
 		return alternative != null;
 	}
-	
+
+	@Override
+	public void compile(MethodVisitor methodWriter) {
+		// TODO Auto-generated method stub
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

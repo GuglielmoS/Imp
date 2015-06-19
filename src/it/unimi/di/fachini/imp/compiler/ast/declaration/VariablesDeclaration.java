@@ -1,19 +1,27 @@
-package it.unimi.di.fachini.imp.compiler.ast.statement;
+package it.unimi.di.fachini.imp.compiler.ast.declaration;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
-import it.unimi.di.fachini.imp.compiler.ast.Statement;
+import it.unimi.di.fachini.imp.compiler.ast.Declaration;
 
 import java.util.List;
 
-public class DeclarationStatement extends Statement {
+import org.objectweb.asm.MethodVisitor;
+
+public class VariablesDeclaration extends Declaration {
 	private final List<Descriptor> identifiers;
 
-	DeclarationStatement(List<Descriptor> identifiers) {
+	VariablesDeclaration(List<Descriptor> identifiers) {
 		this.identifiers = identifiers;
 	}
 
+	@Override
 	public List<Descriptor> getDeclaredIdentifiers() {
 		return identifiers;
+	}
+
+	@Override
+	public void compile(MethodVisitor methodWriter) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -33,7 +41,7 @@ public class DeclarationStatement extends Statement {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DeclarationStatement other = (DeclarationStatement) obj;
+		VariablesDeclaration other = (VariablesDeclaration) obj;
 		if (identifiers == null) {
 			if (other.identifiers != null)
 				return false;

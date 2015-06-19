@@ -2,9 +2,11 @@ package it.unimi.di.fachini.imp.parser;
 
 import it.unimi.di.fachini.imp.compiler.*;
 import it.unimi.di.fachini.imp.compiler.ast.*;
-import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
 import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
+import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.StatementFactory;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.IOStatementFactory;
+import it.unimi.di.fachini.imp.compiler.ast.declaration.DeclarationFactory;
 
 import java_cup.runtime.*;
 
@@ -13,9 +15,12 @@ import java.util.ArrayList;
 
 class Parser;
 
-// add a reference to the symbol table
 action code {:
+	// keep a symbol table
 	protected SymbolTable symbolTable = new SymbolTable();
+
+	// keep a list for the variables declarations (in the order in which they are defined)
+	protected List<Declaration> declarations = new ArrayList<>();
 :}
 
 /**
@@ -31,7 +36,7 @@ terminal ASSIGNTO;
 // parenthesis
 terminal OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY_BRACE, ClOSE_CURLY_BRACE;
 // reserved keywords
-terminal VAR, IF, ELSE, WHILE;
+terminal VAR, IF, ELSE, WHILE, WRITE, WRITEMSG, WRITELN;
 // atomitc values
 terminal Integer NUM;
 terminal String IDENT;
@@ -42,12 +47,13 @@ terminal String IDENT;
 
 non terminal Program prog;
 non terminal List<Statement> seqDeclAndStmts;
-non terminal Statement decl;
+non terminal Declaration decl;
 non terminal List<Descriptor> identSeq;
 non terminal Statement stmt;
 non terminal Statement assignment;
 non terminal Statement ifStmt;
 non terminal Statement whileStmt;
+non terminal Statement writeStmt;
 non terminal Statement block;
 non terminal Expr expr;
 
@@ -63,20 +69,26 @@ start with prog;
 
 /* productions */
 
-prog ::= seqDeclAndStmts:s
-		 {: RESULT = new Program(s, symbolTable); :}
+prog ::= seqDeclAndStmts:stmts
+		 {: RESULT = new Program(declarations, stmts, symbolTable); :}
 	   ;
 
-seqDeclAndStmts ::= seqDeclAndStmts:seq decl:d
-	  				{: seq.add(d); RESULT = seq; :}
-	  			  | seqDeclAndStmts:seq stmt:s
-					{:  seq.add(s); RESULT = seq; :} 
+seqDeclAndStmts ::= seqDeclAndStmts:stmts decl:d
+	  				{:
+						declarations.add(d);
+						RESULT = stmts;
+					:}
+	  			  | seqDeclAndStmts:stmts stmt:s
+					{:  
+						stmts.add(s);
+						RESULT = stmts;
+					:} 
 	 	 		  |	// empty
 					{: RESULT = new ArrayList<>(); :}
 	  			  ;
 
 decl ::= VAR identSeq:identifiers SEMI_COLON
-		 {: RESULT = StatementFactory.declaration(identifiers); :}
+		 {: RESULT = DeclarationFactory.var(identifiers); :}
 	   ;
 
 identSeq ::= IDENT:id
@@ -106,6 +118,8 @@ stmt ::= assignment:assignStmt
 	   	 {: RESULT = ifStatement; :}
 	   | whileStmt:whileStatement
 	   	 {: RESULT = whileStatement; :}
+	   | writeStmt:wstmt
+	   	 {: RESULT = wstmt; :}
 	   | block:blockStatement
 	   	 {: RESULT = blockStatement; :}
 	   | SEMI_COLON
@@ -132,6 +146,13 @@ ifStmt ::= IF OPEN_PAREN expr:condition CLOSE_PAREN stmt:consequent
 whileStmt ::= WHILE OPEN_PAREN expr:condition CLOSE_PAREN stmt:body
 			  {: RESULT = StatementFactory.whileStmt(condition, body); :}
 			; 
+
+writeStmt ::= WRITE expr:e SEMI_COLON
+			  {: RESULT = IOStatementFactory.write(e); :}
+			//| WRITEMSG TODO
+			| WRITELN SEMI_COLON
+			  {: RESULT = IOStatementFactory.writeMessage("\n"); :}
+			;
 
 block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
 		  {: RESULT = StatementFactory.block(statements); :}
