@@ -41,8 +41,10 @@ public class Compiler {
 		//StringReader buf = new StringReader("if (1>=1) writemsg \"OK\"; else writemsg \"KO\";");
 		StringReader buf = new StringReader(
 				"var dividendo, divisore;" +
-				"dividendo = 12;" +
-				"divisore = 9;" +
+				"writemsg \"Dividendo? \";" +
+				"read dividendo;" +
+				"writemsg \"Divisore? \";" +
+				"read divisore;" +
 				"while (divisore != 0) {" +
 					"var resto;" +
 					"resto = dividendo % divisore;" +
@@ -52,6 +54,9 @@ public class Compiler {
 				"writemsg \"MCD = \";" +
 				"write dividendo;" +
 				"writeln;");
+		//StringReader buf = new StringReader("var i; i = 10; while (i >= 0) {write i; writeln; i = i - 1;}");
+		//StringReader buf = new StringReader("var i; read i; write i; writeln;");
+
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);

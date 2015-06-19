@@ -55,7 +55,7 @@ terminal ASSIGNTO;
 // parenthesis
 terminal OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY_BRACE, ClOSE_CURLY_BRACE;
 // reserved keywords
-terminal VAR, IF, ELSE, WHILE, WRITE, WRITEMSG, WRITELN;
+terminal VAR, IF, ELSE, WHILE, WRITE, WRITEMSG, WRITELN, READ;
 // atomitc values
 terminal Integer NUM;
 terminal String IDENT;
@@ -75,6 +75,7 @@ non terminal Statement ifStmt;
 non terminal Condition condition;
 non terminal Statement whileStmt;
 non terminal Statement writeStmt;
+non terminal Statement readStmt;
 non terminal String string;
 non terminal Statement block;
 non terminal Expr expr;
@@ -134,6 +135,8 @@ stmt ::= assignment:assignStmt
 	   	 {: RESULT = whileStatement; :}
 	   | writeStmt:wstmt
 	   	 {: RESULT = wstmt; :}
+	   | readStmt:rstmt
+	   	 {: RESULT = rstmt; :}
 	   | block:blockStatement
 	   	 {: RESULT = blockStatement; :}
 	   | SEMI_COLON
@@ -154,16 +157,6 @@ whileStmt ::= WHILE OPEN_PAREN condition:cond CLOSE_PAREN stmt:body
 			  {: RESULT = StatementFactory.whileStmt(cond, body); :}
 			; 
 
-writeStmt ::= WRITE expr:e SEMI_COLON
-			  {: RESULT = IOStatementFactory.write(e); :}
-			| WRITEMSG string:s SEMI_COLON
-			  {: RESULT = IOStatementFactory.writeMessage(s); :}
-			| WRITELN SEMI_COLON
-			  {: RESULT = IOStatementFactory.writeMessage("\n"); :}
-			;
-
-string ::= STRING:s {: RESULT = s; :};
-
 condition ::= expr:e1 LT expr:e2
 			  {: RESULT = ConditionFactory.lt(e1, e2); :}
 			| expr:e1 LE expr:e2
@@ -177,6 +170,20 @@ condition ::= expr:e1 LT expr:e2
 			| expr:e1 NE expr:e2
 			  {: RESULT = ConditionFactory.ne(e1, e2); :}
 			;
+
+writeStmt ::= WRITE expr:e SEMI_COLON
+			  {: RESULT = IOStatementFactory.write(e); :}
+			| WRITEMSG string:s SEMI_COLON
+			  {: RESULT = IOStatementFactory.writeMessage(s); :}
+			| WRITELN SEMI_COLON
+			  {: RESULT = IOStatementFactory.writeMessage("\n"); :}
+			;
+
+string ::= STRING:s {: RESULT = s; :};
+
+readStmt ::= READ IDENT:ident SEMI_COLON
+			 {: RESULT = IOStatementFactory.read(getVariable(ident)); :}
+		   ;
 
 block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
 		  {: RESULT = StatementFactory.block(statements); :}

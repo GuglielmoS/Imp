@@ -97,6 +97,7 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"write" {return sf.newSymbol("WRITE", ParserSym.WRITE);}
 	"writemsg" {return sf.newSymbol("WRITEMSG", ParserSym.WRITEMSG);}
 	"writeln" {return sf.newSymbol("WRITELN", ParserSym.WRITELN);}
+	"read" {return sf.newSymbol("READ", ParserSym.READ);}
 
 	/*
 	 * Numbers

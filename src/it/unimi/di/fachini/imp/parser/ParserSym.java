@@ -10,10 +10,11 @@ public class ParserSym {
   /* terminals */
   public static final int UNARY = 9;
   public static final int MOD = 8;
+  public static final int READ = 28;
   public static final int OPEN_PAREN = 17;
   public static final int LT = 12;
   public static final int NE = 11;
-  public static final int IDENT = 29;
+  public static final int IDENT = 30;
   public static final int ELSE = 23;
   public static final int PLUS = 4;
   public static final int WHILE = 24;
@@ -24,8 +25,8 @@ public class ParserSym {
   public static final int GT = 13;
   public static final int WRITE = 25;
   public static final int LE = 14;
-  public static final int NUM = 28;
-  public static final int STRING = 30;
+  public static final int NUM = 29;
+  public static final int STRING = 31;
   public static final int OPEN_CURLY_BRACE = 19;
   public static final int COMMA = 2;
   public static final int EOF = 0;
@@ -68,6 +69,7 @@ public class ParserSym {
   "WRITE",
   "WRITEMSG",
   "WRITELN",
+  "READ",
   "NUM",
   "IDENT",
   "STRING"

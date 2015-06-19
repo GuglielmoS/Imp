@@ -12,6 +12,7 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteMessageStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
 
@@ -30,7 +31,8 @@ public interface ASTVisitor {
 	// IO statements
 	void visitWrite(WriteStatement writeStmt);
 	void visitWriteMessage(WriteMessageStatement writeMsgStmt);
-
+	void visitRead(ReadStatement readStmt);
+	
 	// other statements
 	void visitAssign(AssignStatement assign);
 	void visitBlock(BlockStatement block);

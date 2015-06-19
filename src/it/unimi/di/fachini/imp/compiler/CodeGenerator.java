@@ -1,29 +1,7 @@
 package it.unimi.di.fachini.imp.compiler;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IADD;
-import static org.objectweb.asm.Opcodes.IDIV;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.IFGE;
-import static org.objectweb.asm.Opcodes.IFGT;
-import static org.objectweb.asm.Opcodes.IFLE;
-import static org.objectweb.asm.Opcodes.IFLT;
-import static org.objectweb.asm.Opcodes.IFNE;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.IMUL;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.ISUB;
-import static org.objectweb.asm.Opcodes.NOP;
-import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.*;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.arith.AddExpr;
@@ -34,11 +12,13 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionType;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteMessageStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
 
@@ -212,15 +192,26 @@ public class CodeGenerator implements ASTVisitor {
 	@Override
 	public void visitWriteMessage(WriteMessageStatement writeMsgStmt) {
 		// push the 'out' field (of type PrintStream) of the System class
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
-				"Ljava/io/PrintStream;");
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 
 		// push the string to be printed
 		mv.visitLdcInsn(writeMsgStmt.getMessage());
 
 		// invoke the 'print' method (defined in the PrintStream class)
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print",
-				"(Ljava/lang/String;)V", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+	}
+
+	@Override
+	public void visitRead(ReadStatement readStmt) {
+		// create a new java.util.Scanner object
+		mv.visitTypeInsn(NEW, "java/util/Scanner");
+		mv.visitInsn(DUP);
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
+		mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
+		// call nextInt() on the created object
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
+		// put the read value in the specified variable
+		mv.visitVarInsn(ISTORE, readStmt.getDestination().getIndex());
 	}
 
 	@Override
@@ -252,28 +243,7 @@ public class CodeGenerator implements ASTVisitor {
 
 		// evaluate the result accordingly to the condition type
 		Label alternativeOrEnd = new Label();
-		switch (cond.getType()) {
-		case EQ:
-			mv.visitJumpInsn(IFNE, alternativeOrEnd);
-			break;
-		case NE:
-			mv.visitJumpInsn(IFEQ, alternativeOrEnd);
-			break;
-		case GE:
-			mv.visitJumpInsn(IFLT, alternativeOrEnd);
-			break;
-		case GT:
-			mv.visitJumpInsn(IFLE, alternativeOrEnd);
-			break;
-		case LE:
-			mv.visitJumpInsn(IFGT, alternativeOrEnd);
-			break;
-		case LT:
-			mv.visitJumpInsn(IFGE, alternativeOrEnd);
-			break;
-		default:
-			throw new IllegalStateException("Missing switch case!");
-		}
+		mv.visitJumpInsn(getConditionOpcode(cond.getType()), alternativeOrEnd);
 
 		// consequent branch
 		ifStmt.getConsequent().accept(this);
@@ -304,28 +274,7 @@ public class CodeGenerator implements ASTVisitor {
 
 		// evaluate the result accordingly to the condition type
 		Label end = new Label();
-		switch (cond.getType()) {
-		case EQ:
-			mv.visitJumpInsn(IFNE, end);
-			break;
-		case NE:
-			mv.visitJumpInsn(IFEQ, end);
-			break;
-		case GE:
-			mv.visitJumpInsn(IFLT, end);
-			break;
-		case GT:
-			mv.visitJumpInsn(IFLE, end);
-			break;
-		case LE:
-			mv.visitJumpInsn(IFGT, end);
-			break;
-		case LT:
-			mv.visitJumpInsn(IFGE, end);
-			break;
-		default:
-			throw new IllegalStateException("Missing switch case!");
-		}
+		mv.visitJumpInsn(getConditionOpcode(cond.getType()), end);
 
 		// body
 		whileStmt.getBody().accept(this);
@@ -333,5 +282,17 @@ public class CodeGenerator implements ASTVisitor {
 
 		// loop's end
 		mv.visitLabel(end);
+	}
+
+	private int getConditionOpcode(ConditionType type) {
+		switch (type) {
+			case EQ: return IFNE;
+			case NE: return IFEQ;
+			case GE: return IFLT;
+			case GT: return IFLE;
+			case LE: return IFGT;
+			case LT: return IFGE;
+			default: throw new IllegalStateException("Invalid condition given: " + type);
+		}
 	}
 }
