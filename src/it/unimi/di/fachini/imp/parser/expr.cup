@@ -4,9 +4,11 @@ import it.unimi.di.fachini.imp.compiler.*;
 import it.unimi.di.fachini.imp.compiler.ast.*;
 import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
 import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.StatementFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.IOStatementFactory;
-import it.unimi.di.fachini.imp.compiler.ast.declaration.DeclarationFactory;
+import it.unimi.di.fachini.imp.compiler.declaration.DeclarationFactory;
+import it.unimi.di.fachini.imp.compiler.error.*;
 
 import java_cup.runtime.*;
 
@@ -31,6 +33,8 @@ action code {:
 terminal COMMA, SEMI_COLON;
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, UNARY;
+// conditionals
+terminal EQ, NE, LT, GT, LE, GE;
 // assignments
 terminal ASSIGNTO;
 // parenthesis
@@ -53,6 +57,7 @@ non terminal List<Descriptor> identSeq;
 non terminal Statement stmt;
 non terminal Statement assignment;
 non terminal Statement ifStmt;
+non terminal Condition condition;
 non terminal Statement whileStmt;
 non terminal Statement writeStmt;
 non terminal String string;
@@ -139,25 +144,39 @@ assignment ::= IDENT:ident ASSIGNTO expr:e SEMI_COLON
 		       :}
 		 	 ;
 
-ifStmt ::= IF OPEN_PAREN expr:condition CLOSE_PAREN stmt:consequent
-		   {: RESULT = StatementFactory.ifStmt(condition, consequent); :}
-		 | IF OPEN_PAREN expr:condition CLOSE_PAREN stmt:consequent ELSE stmt:alternative
-		   {: RESULT = StatementFactory.ifStmt(condition, consequent, alternative); :}
+ifStmt ::= IF OPEN_PAREN condition:cond CLOSE_PAREN stmt:consequent ELSE stmt:alternative
+		   {: RESULT = StatementFactory.ifStmt(cond, consequent, alternative); :}
+		 | IF OPEN_PAREN condition:cond CLOSE_PAREN stmt:consequent
+		   {: RESULT = StatementFactory.ifStmt(cond, consequent); :}
 		 ;
 
-whileStmt ::= WHILE OPEN_PAREN expr:condition CLOSE_PAREN stmt:body
-			  {: RESULT = StatementFactory.whileStmt(condition, body); :}
+whileStmt ::= WHILE OPEN_PAREN condition:cond CLOSE_PAREN stmt:body
+			  {: RESULT = StatementFactory.whileStmt(cond, body); :}
 			; 
 
 writeStmt ::= WRITE expr:e SEMI_COLON
 			  {: RESULT = IOStatementFactory.write(e); :}
-			| WRITEMSG string:s
+			| WRITEMSG string:s SEMI_COLON
 			  {: RESULT = IOStatementFactory.writeMessage(s); :}
 			| WRITELN SEMI_COLON
 			  {: RESULT = IOStatementFactory.writeMessage("\n"); :}
 			;
 
 string ::= STRING:s {: RESULT = s; :};
+
+condition ::= expr:e1 LT expr:e2
+			  {: RESULT = ConditionFactory.lt(e1, e2); :}
+			| expr:e1 LE expr:e2
+			  {: RESULT = ConditionFactory.le(e1, e2); :}
+			| expr:e1 GT expr:e2
+			  {: RESULT = ConditionFactory.gt(e1, e2); :}
+			| expr:e1 GE expr:e2
+			  {: RESULT = ConditionFactory.ge(e1, e2); :}
+			| expr:e1 EQ expr:e2
+			  {: RESULT = ConditionFactory.eq(e1, e2); :}
+			| expr:e1 NE expr:e2
+			  {: RESULT = ConditionFactory.ne(e1, e2); :}
+			;
 
 block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
 		  {: RESULT = StatementFactory.block(statements); :}

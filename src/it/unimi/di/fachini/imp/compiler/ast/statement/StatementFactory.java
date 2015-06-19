@@ -1,6 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
+import it.unimi.di.fachini.imp.compiler.ast.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
@@ -15,15 +16,15 @@ public class StatementFactory {
 		return new AssignStatement(ident, value);
 	}
 
-	public static Statement ifStmt(Expr condition, Statement consequent) {
+	public static Statement ifStmt(Condition condition, Statement consequent) {
 		return new IfStatement(condition, consequent);
 	}
 
-	public static Statement ifStmt(Expr condition, Statement consequent, Statement alternative) {
+	public static Statement ifStmt(Condition condition, Statement consequent, Statement alternative) {
 		return new IfStatement(condition, consequent, alternative);
 	}
 
-	public static Statement whileStmt(Expr condition, Statement body) {
+	public static Statement whileStmt(Condition condition, Statement body) {
 		return new WhileStatement(condition, body);
 	}
 

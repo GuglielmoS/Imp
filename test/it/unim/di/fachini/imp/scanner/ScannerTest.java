@@ -131,6 +131,25 @@ public class ScannerTest {
 	}
 
 	@Test
+	public void testConditionalOperators() {
+		StringReader buf = new StringReader("< <= > >= == !=");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
+			assertEquals(ParserSym.LT, scanner.next_token().sym);
+			assertEquals(ParserSym.LE, scanner.next_token().sym);
+			assertEquals(ParserSym.GT, scanner.next_token().sym);
+			assertEquals(ParserSym.GE, scanner.next_token().sym);
+			assertEquals(ParserSym.EQ, scanner.next_token().sym);
+			assertEquals(ParserSym.NE, scanner.next_token().sym);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
 	public void testDelimiters() {
 		StringReader buf = new StringReader(",;()");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();

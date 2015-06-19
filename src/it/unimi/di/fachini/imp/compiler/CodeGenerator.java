@@ -1,24 +1,7 @@
 package it.unimi.di.fachini.imp.compiler;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IADD;
-import static org.objectweb.asm.Opcodes.IDIV;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.IMUL;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.ISUB;
-import static org.objectweb.asm.Opcodes.NOP;
-import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.*;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.arith.AddExpr;
@@ -28,6 +11,12 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.EQCondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.GTCondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.GECondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.LTCondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.LECondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.NECondition;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
@@ -35,7 +24,6 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteMessageStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
-import it.unimi.di.fachini.imp.compiler.declaration.Declaration;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -183,6 +171,130 @@ public class CodeGenerator implements ASTVisitor {
 	}
 
 	@Override
+	public void visitEQ(EQCondition eqCond) {
+		// compile the expressions and subtract them
+		eqCond.getLeft().accept(this);
+		eqCond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// compare the values, thus return
+		// 	0 IF the values are not equal
+		// 	1 IF the values are equal
+		Label fail = new Label();
+		mv.visitJumpInsn(IFNE, fail);
+		// positive case
+		mv.visitLdcInsn(1);
+		Label end = new Label();
+		mv.visitJumpInsn(GOTO, end);
+		// negative case
+		mv.visitLabel(fail);
+		mv.visitLdcInsn(0);
+		mv.visitLabel(end);
+	}
+
+	@Override
+	public void visitNE(NECondition neCond) {
+		// compile the expressions and subtract them
+		neCond.getLeft().accept(this);
+		neCond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// compare the values, thus return
+		// 	0 IF the values are equal
+		// 	1 IF the values are not equal
+		Label fail = new Label();
+		mv.visitJumpInsn(IFEQ, fail);
+		// positive case
+		mv.visitLdcInsn(1);
+		Label end = new Label();
+		mv.visitJumpInsn(GOTO, end);
+		// negative case
+		mv.visitLabel(fail);
+		mv.visitLdcInsn(0);
+		mv.visitLabel(end);
+	}
+
+	@Override
+	public void visitLT(LTCondition ltCond) {
+		// compile the expressions and subtract them
+		ltCond.getLeft().accept(this);
+		ltCond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// compare the values
+		Label fail = new Label();
+		mv.visitJumpInsn(IFGE, fail);
+		// positive case
+		mv.visitLdcInsn(1);
+		Label end = new Label();
+		mv.visitJumpInsn(GOTO, end);
+		// negative case
+		mv.visitLabel(fail);
+		mv.visitLdcInsn(0);
+		mv.visitLabel(end);
+	}
+
+	@Override
+	public void visitGT(GTCondition gtCond) {
+		// compile the expressions and subtract them
+		gtCond.getLeft().accept(this);
+		gtCond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// compare the values
+		Label fail = new Label();
+		mv.visitJumpInsn(IFLE, fail);
+		// positive case
+		mv.visitLdcInsn(1);
+		Label end = new Label();
+		mv.visitJumpInsn(GOTO, end);
+		// negative case
+		mv.visitLabel(fail);
+		mv.visitLdcInsn(0);
+		mv.visitLabel(end);
+	}
+
+	@Override
+	public void visitLE(LECondition leCond) {
+		// compile the expressions and subtract them
+		leCond.getLeft().accept(this);
+		leCond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// compare the values
+		Label fail = new Label();
+		mv.visitJumpInsn(IFGT, fail);
+		// positive case
+		mv.visitLdcInsn(1);
+		Label end = new Label();
+		mv.visitJumpInsn(GOTO, end);
+		// negative case
+		mv.visitLabel(fail);
+		mv.visitLdcInsn(0);
+		mv.visitLabel(end);
+	}
+
+	@Override
+	public void visitGE(GECondition geCond) {
+		// compile the expressions and subtract them
+		geCond.getLeft().accept(this);
+		geCond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// compare the values
+		Label fail = new Label();
+		mv.visitJumpInsn(IFLT, fail);
+		// positive case
+		mv.visitLdcInsn(1);
+		Label end = new Label();
+		mv.visitJumpInsn(GOTO, end);
+		// negative case
+		mv.visitLabel(fail);
+		mv.visitLdcInsn(0);
+		mv.visitLabel(end);
+	}
+
+	@Override
 	public void visitWrite(WriteStatement writeStmt) {
         // retrieve System.out and push it onto the stack
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -247,7 +359,7 @@ public class CodeGenerator implements ASTVisitor {
 		}
 
 		// if's end
-		mv.visitLabel(end);		
+		mv.visitLabel(end);
 	}
 
 	@Override

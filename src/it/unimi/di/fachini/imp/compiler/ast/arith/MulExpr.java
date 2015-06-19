@@ -3,7 +3,7 @@ package it.unimi.di.fachini.imp.compiler.ast.arith;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
-public class MulExpr extends Expr {
+public class MulExpr implements Expr {
 	private final Expr left;
 	private final Expr right;
 

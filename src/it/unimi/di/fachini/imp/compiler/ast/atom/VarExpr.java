@@ -4,7 +4,7 @@ import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
-public class VarExpr extends Expr {
+public class VarExpr implements Expr {
 	private Descriptor descriptor;
 
 	VarExpr(Descriptor descriptor) {

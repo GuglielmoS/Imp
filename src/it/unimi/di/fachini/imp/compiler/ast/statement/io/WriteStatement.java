@@ -4,7 +4,7 @@ import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
-public class WriteStatement extends Statement {
+public class WriteStatement implements Statement {
 	private final Expr expr;
 
 	WriteStatement(Expr expr) {

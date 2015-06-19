@@ -5,7 +5,7 @@ import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
 import java.util.List;
 
-public class BlockStatement extends Statement {
+public class BlockStatement implements Statement {
 	private final List<Statement> statements;
 
 	BlockStatement(List<Statement> statements) {

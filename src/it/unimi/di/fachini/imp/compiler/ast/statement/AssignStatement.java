@@ -5,7 +5,7 @@ import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
-public class AssignStatement extends Statement {
+public class AssignStatement implements Statement {
 	private final Descriptor target;
 	private final Expr value;
 

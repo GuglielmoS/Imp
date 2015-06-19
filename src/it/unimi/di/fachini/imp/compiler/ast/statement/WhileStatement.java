@@ -1,19 +1,19 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
-import it.unimi.di.fachini.imp.compiler.ast.Expr;
+import it.unimi.di.fachini.imp.compiler.ast.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
-public class WhileStatement extends Statement {
-	private final Expr condition;
+public class WhileStatement implements Statement {
+	private final Condition condition;
 	private final Statement body;
 
-	WhileStatement(Expr condition, Statement body) {
+	WhileStatement(Condition condition, Statement body) {
 		this.condition = condition;
 		this.body = body;
 	}
 
-	public Expr getCondition() {
+	public Condition getCondition() {
 		return condition;
 	}
 

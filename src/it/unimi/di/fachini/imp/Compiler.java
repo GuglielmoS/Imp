@@ -34,7 +34,8 @@ public class Compiler {
 					"write i;" +
 					"i = i - 1;" +
 				"}");*/
-		StringReader buf = new StringReader("write ((8 % 5) % 2); writeln; write (9 % 4); writeln;");
+		//StringReader buf = new StringReader("write ((8 % 5) % 2); writeln; write (9 % 4); writeln;");
+		StringReader buf = new StringReader("if (1==1) if (2!=2) writemsg \"KO\"; else writemsg \"OK\";");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);

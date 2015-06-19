@@ -62,6 +62,17 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"+" {return sf.newSymbol("PLUS", ParserSym.PLUS);}
 
 	/*
+	 * Conditional operators
+	 */
+
+	"<" {return sf.newSymbol("LT", ParserSym.LT);}
+	"<=" {return sf.newSymbol("LE", ParserSym.LE);}
+	">" {return sf.newSymbol("GT", ParserSym.GT);}
+	">=" {return sf.newSymbol("GE", ParserSym.GE);}
+	"==" {return sf.newSymbol("EQ", ParserSym.EQ);}
+	"!=" {return sf.newSymbol("NE", ParserSym.NE);}
+
+	/*
 	 * Parenthesis
 	 */
 

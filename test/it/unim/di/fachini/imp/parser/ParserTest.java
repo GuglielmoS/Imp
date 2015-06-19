@@ -4,17 +4,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import it.unimi.di.fachini.imp.compiler.Declaration;
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.Program;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.EQCondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.NECondition;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteMessageStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
-import it.unimi.di.fachini.imp.compiler.declaration.Declaration;
 import it.unimi.di.fachini.imp.compiler.declaration.VariablesDeclaration;
 import it.unimi.di.fachini.imp.compiler.error.CompilerError;
 import it.unimi.di.fachini.imp.parser.Parser;
@@ -163,7 +166,7 @@ public class ParserTest {
 
 	@Test
 	public void testIfWithoutElse() {
-		StringReader buf = new StringReader("if (1) ;");
+		StringReader buf = new StringReader("if (1 == 1) ;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
@@ -174,8 +177,7 @@ public class ParserTest {
 			assertEquals(1, statements.size());
 			assertTrue(statements.get(0) instanceof IfStatement);
 			IfStatement ifStmt = (IfStatement)statements.get(0);
-			assertTrue(ifStmt.getCondition() instanceof NumExpr);
-			assertEquals(new Integer(1), ((NumExpr)ifStmt.getCondition()).getValue());
+			assertTrue(ifStmt.getCondition() instanceof EQCondition);
 			assertTrue(ifStmt.getConsequent() instanceof EmptyStatement);
 			assertFalse(ifStmt.hasAlternative());
 		} catch (Exception e) {
@@ -185,7 +187,7 @@ public class ParserTest {
 
 	@Test
 	public void testIfWithElse() {
-		StringReader buf = new StringReader("if (1) ; else ;");
+		StringReader buf = new StringReader("if (1==1) ; else ;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
@@ -196,8 +198,7 @@ public class ParserTest {
 			assertEquals(1, statements.size());
 			assertTrue(statements.get(0) instanceof IfStatement);
 			IfStatement ifStmt = (IfStatement)statements.get(0);
-			assertTrue(ifStmt.getCondition() instanceof NumExpr);
-			assertEquals(new Integer(1), ((NumExpr)ifStmt.getCondition()).getValue());
+			assertTrue(ifStmt.getCondition() instanceof EQCondition);
 			assertTrue(ifStmt.getConsequent() instanceof EmptyStatement);
 			assertTrue(ifStmt.hasAlternative());
 			assertTrue(ifStmt.getAlternative() instanceof EmptyStatement);
@@ -208,7 +209,7 @@ public class ParserTest {
 
 	@Test
 	public void testDanglingElse() {
-		StringReader buf = new StringReader("if (1) if (2) ; else ;");
+		StringReader buf = new StringReader("if (1==1) if (2!=2) ; else ;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
@@ -220,15 +221,13 @@ public class ParserTest {
 			assertTrue(statements.get(0) instanceof IfStatement);
 			// outer if
 			IfStatement outerIf = (IfStatement)statements.get(0);
-			assertTrue(outerIf.getCondition()instanceof NumExpr);
-			assertEquals(new Integer(1), ((NumExpr)outerIf.getCondition()).getValue());
+			assertTrue(outerIf.getCondition()instanceof EQCondition);
 			assertTrue(outerIf.getConsequent() instanceof IfStatement);
 			assertFalse(outerIf.hasAlternative());
 			// inner if
 			assertTrue(outerIf.getConsequent() instanceof IfStatement);
 			IfStatement innerIf = (IfStatement)outerIf.getConsequent();
-			assertTrue(innerIf.getCondition()instanceof NumExpr);
-			assertEquals(new Integer(2), ((NumExpr)innerIf.getCondition()).getValue());
+			assertTrue(innerIf.getCondition()instanceof NECondition);
 			assertTrue(innerIf.getConsequent() instanceof EmptyStatement);
 			assertTrue(innerIf.hasAlternative());
 			assertTrue(innerIf.getConsequent() instanceof EmptyStatement);
@@ -239,7 +238,7 @@ public class ParserTest {
 
 	@Test
 	public void testWhileWithEmptyBody() {
-		StringReader buf = new StringReader("while (1);");
+		StringReader buf = new StringReader("while (1==1);");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
@@ -250,8 +249,7 @@ public class ParserTest {
 			assertEquals(1, statements.size());
 			assertTrue(statements.get(0) instanceof WhileStatement);
 			WhileStatement whileStmt = (WhileStatement)statements.get(0);
-			assertTrue(whileStmt.getCondition() instanceof NumExpr);
-			assertEquals(new Integer(1), ((NumExpr)whileStmt.getCondition()).getValue());
+			assertTrue(whileStmt.getCondition() instanceof EQCondition);
 			assertTrue(whileStmt.getBody() instanceof EmptyStatement);
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
