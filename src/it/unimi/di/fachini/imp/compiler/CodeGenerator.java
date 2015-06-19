@@ -1,7 +1,29 @@
 package it.unimi.di.fachini.imp.compiler;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.IDIV;
+import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.IFGE;
+import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IFLE;
+import static org.objectweb.asm.Opcodes.IFLT;
+import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.IMUL;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.ISTORE;
+import static org.objectweb.asm.Opcodes.ISUB;
+import static org.objectweb.asm.Opcodes.NOP;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.arith.AddExpr;
@@ -11,12 +33,7 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
-import it.unimi.di.fachini.imp.compiler.ast.conditional.EQCondition;
-import it.unimi.di.fachini.imp.compiler.ast.conditional.GTCondition;
-import it.unimi.di.fachini.imp.compiler.ast.conditional.GECondition;
-import it.unimi.di.fachini.imp.compiler.ast.conditional.LTCondition;
-import it.unimi.di.fachini.imp.compiler.ast.conditional.LECondition;
-import it.unimi.di.fachini.imp.compiler.ast.conditional.NECondition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
@@ -47,10 +64,11 @@ public class CodeGenerator implements ASTVisitor {
 
 	public byte[] compile(Program program) {
 		resetLocalVariables();
-		
+
 		// creates a ClassWriter to compile the parsed program
 		ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
-		cw.visit(V1_8, ACC_PUBLIC, program.getName(), null, "java/lang/Object", null);
+		cw.visit(V1_8, ACC_PUBLIC, program.getName(), null, "java/lang/Object",
+				null);
 
 		/*********************************************************************
 		 * Create the default constructor
@@ -61,7 +79,8 @@ public class CodeGenerator implements ASTVisitor {
 		// pushes the 'this' variable
 		mv.visitVarInsn(ALOAD, 0);
 		// invokes the super class constructor
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+				false);
 		mv.visitInsn(RETURN);
 		// this code uses a maximum of one stack element and one local variable
 		mv.visitMaxs(1, 1);
@@ -71,14 +90,16 @@ public class CodeGenerator implements ASTVisitor {
 		 * Create the main method
 		 *********************************************************************/
 
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
+				"([Ljava/lang/String;)V", null, null);
 		mv.visitCode();
 
 		/*********************************************************************
 		 * Declare the local variables
 		 *********************************************************************/
 
-		// start from 1 because the main function receives an argument (String[] args)
+		// start from 1 because the main function receives an argument (String[]
+		// args)
 		reserveLocal();
 		for (Declaration decl : program.getDeclarations()) {
 			for (Descriptor descriptor : decl.getDeclaredIdentifiers()) {
@@ -112,7 +133,7 @@ public class CodeGenerator implements ASTVisitor {
 
 	@Override
 	public void visitVar(VarExpr expr) {
-		mv.visitVarInsn(ILOAD, expr.getDescriptor().getIndex());		
+		mv.visitVarInsn(ILOAD, expr.getDescriptor().getIndex());
 	}
 
 	@Override
@@ -126,14 +147,14 @@ public class CodeGenerator implements ASTVisitor {
 	public void visitSub(SubExpr expr) {
 		expr.getLeft().accept(this);
 		expr.getRight().accept(this);
-		mv.visitInsn(ISUB);		
+		mv.visitInsn(ISUB);
 	}
 
 	@Override
 	public void visitMul(MulExpr expr) {
 		expr.getLeft().accept(this);
 		expr.getRight().accept(this);
-		mv.visitInsn(IMUL);		
+		mv.visitInsn(IMUL);
 	}
 
 	@Override
@@ -167,158 +188,39 @@ public class CodeGenerator implements ASTVisitor {
 
 		// destroy the used local variables
 		destroyLocal();
-		destroyLocal();		
-	}
-
-	@Override
-	public void visitEQ(EQCondition eqCond) {
-		// compile the expressions and subtract them
-		eqCond.getLeft().accept(this);
-		eqCond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
-		// compare the values, thus return
-		// 	0 IF the values are not equal
-		// 	1 IF the values are equal
-		Label fail = new Label();
-		mv.visitJumpInsn(IFNE, fail);
-		// positive case
-		mv.visitLdcInsn(1);
-		Label end = new Label();
-		mv.visitJumpInsn(GOTO, end);
-		// negative case
-		mv.visitLabel(fail);
-		mv.visitLdcInsn(0);
-		mv.visitLabel(end);
-	}
-
-	@Override
-	public void visitNE(NECondition neCond) {
-		// compile the expressions and subtract them
-		neCond.getLeft().accept(this);
-		neCond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
-		// compare the values, thus return
-		// 	0 IF the values are equal
-		// 	1 IF the values are not equal
-		Label fail = new Label();
-		mv.visitJumpInsn(IFEQ, fail);
-		// positive case
-		mv.visitLdcInsn(1);
-		Label end = new Label();
-		mv.visitJumpInsn(GOTO, end);
-		// negative case
-		mv.visitLabel(fail);
-		mv.visitLdcInsn(0);
-		mv.visitLabel(end);
-	}
-
-	@Override
-	public void visitLT(LTCondition ltCond) {
-		// compile the expressions and subtract them
-		ltCond.getLeft().accept(this);
-		ltCond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
-		// compare the values
-		Label fail = new Label();
-		mv.visitJumpInsn(IFGE, fail);
-		// positive case
-		mv.visitLdcInsn(1);
-		Label end = new Label();
-		mv.visitJumpInsn(GOTO, end);
-		// negative case
-		mv.visitLabel(fail);
-		mv.visitLdcInsn(0);
-		mv.visitLabel(end);
-	}
-
-	@Override
-	public void visitGT(GTCondition gtCond) {
-		// compile the expressions and subtract them
-		gtCond.getLeft().accept(this);
-		gtCond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
-		// compare the values
-		Label fail = new Label();
-		mv.visitJumpInsn(IFLE, fail);
-		// positive case
-		mv.visitLdcInsn(1);
-		Label end = new Label();
-		mv.visitJumpInsn(GOTO, end);
-		// negative case
-		mv.visitLabel(fail);
-		mv.visitLdcInsn(0);
-		mv.visitLabel(end);
-	}
-
-	@Override
-	public void visitLE(LECondition leCond) {
-		// compile the expressions and subtract them
-		leCond.getLeft().accept(this);
-		leCond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
-		// compare the values
-		Label fail = new Label();
-		mv.visitJumpInsn(IFGT, fail);
-		// positive case
-		mv.visitLdcInsn(1);
-		Label end = new Label();
-		mv.visitJumpInsn(GOTO, end);
-		// negative case
-		mv.visitLabel(fail);
-		mv.visitLdcInsn(0);
-		mv.visitLabel(end);
-	}
-
-	@Override
-	public void visitGE(GECondition geCond) {
-		// compile the expressions and subtract them
-		geCond.getLeft().accept(this);
-		geCond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
-		// compare the values
-		Label fail = new Label();
-		mv.visitJumpInsn(IFLT, fail);
-		// positive case
-		mv.visitLdcInsn(1);
-		Label end = new Label();
-		mv.visitJumpInsn(GOTO, end);
-		// negative case
-		mv.visitLabel(fail);
-		mv.visitLdcInsn(0);
-		mv.visitLabel(end);
+		destroyLocal();
 	}
 
 	@Override
 	public void visitWrite(WriteStatement writeStmt) {
-        // retrieve System.out and push it onto the stack
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-		
+		// retrieve System.out and push it onto the stack
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
+				"Ljava/io/PrintStream;");
+
 		// compile the expression to be printed and push it onto the stack
-        writeStmt.getExpr().accept(this);
+		writeStmt.getExpr().accept(this);
 
 		// invoke Integer.toString()
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "toString", "(I)Ljava/lang/String;", false);
+		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "toString",
+				"(I)Ljava/lang/String;", false);
 
-        // invoke System.out.println()
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);		
+		// invoke System.out.println()
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print",
+				"(Ljava/lang/String;)V", false);
 	}
 
 	@Override
 	public void visitWriteMessage(WriteMessageStatement writeMsgStmt) {
-        // push the 'out' field (of type PrintStream) of the System class
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+		// push the 'out' field (of type PrintStream) of the System class
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
+				"Ljava/io/PrintStream;");
 
-        // push the string to be printed
-        mv.visitLdcInsn(writeMsgStmt.getMessage());
+		// push the string to be printed
+		mv.visitLdcInsn(writeMsgStmt.getMessage());
 
-        // invoke the 'print' method (defined in the PrintStream class)
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+		// invoke the 'print' method (defined in the PrintStream class)
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print",
+				"(Ljava/lang/String;)V", false);
 	}
 
 	@Override
@@ -332,7 +234,7 @@ public class CodeGenerator implements ASTVisitor {
 		// compile the statements sequentially
 		for (Statement stmt : block.getStatements()) {
 			stmt.accept(this);
-		}		
+		}
 	}
 
 	@Override
@@ -342,10 +244,36 @@ public class CodeGenerator implements ASTVisitor {
 
 	@Override
 	public void visitIf(IfStatement ifStmt) {
-		// condition check & jump
-		ifStmt.getCondition().accept(this);
+		// compute (cond.left - cond.right) onto the stack
+		Condition cond = ifStmt.getCondition();
+		cond.getLeft().accept(this);
+		cond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// evaluate the result accordingly to the condition type
 		Label alternativeOrEnd = new Label();
-		mv.visitJumpInsn(IFEQ, alternativeOrEnd);
+		switch (cond.getType()) {
+		case EQ:
+			mv.visitJumpInsn(IFNE, alternativeOrEnd);
+			break;
+		case NE:
+			mv.visitJumpInsn(IFEQ, alternativeOrEnd);
+			break;
+		case GE:
+			mv.visitJumpInsn(IFLT, alternativeOrEnd);
+			break;
+		case GT:
+			mv.visitJumpInsn(IFLE, alternativeOrEnd);
+			break;
+		case LE:
+			mv.visitJumpInsn(IFGT, alternativeOrEnd);
+			break;
+		case LT:
+			mv.visitJumpInsn(IFGE, alternativeOrEnd);
+			break;
+		default:
+			throw new IllegalStateException("Missing switch case!");
+		}
 
 		// consequent branch
 		ifStmt.getConsequent().accept(this);
@@ -368,10 +296,36 @@ public class CodeGenerator implements ASTVisitor {
 		Label loop = new Label();
 		mv.visitLabel(loop);
 
-		// condition check & jump
-		whileStmt.getCondition().accept(this);
+		// compute (cond.left - cond.right) onto the stack
+		Condition cond = whileStmt.getCondition();
+		cond.getLeft().accept(this);
+		cond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// evaluate the result accordingly to the condition type
 		Label end = new Label();
-		mv.visitJumpInsn(IFEQ, end);
+		switch (cond.getType()) {
+		case EQ:
+			mv.visitJumpInsn(IFNE, end);
+			break;
+		case NE:
+			mv.visitJumpInsn(IFEQ, end);
+			break;
+		case GE:
+			mv.visitJumpInsn(IFLT, end);
+			break;
+		case GT:
+			mv.visitJumpInsn(IFLE, end);
+			break;
+		case LE:
+			mv.visitJumpInsn(IFGT, end);
+			break;
+		case LT:
+			mv.visitJumpInsn(IFGE, end);
+			break;
+		default:
+			throw new IllegalStateException("Missing switch case!");
+		}
 
 		// body
 		whileStmt.getBody().accept(this);

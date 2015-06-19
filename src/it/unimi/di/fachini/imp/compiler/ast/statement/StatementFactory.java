@@ -1,9 +1,9 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
-import it.unimi.di.fachini.imp.compiler.ast.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 
 import java.util.List;
 

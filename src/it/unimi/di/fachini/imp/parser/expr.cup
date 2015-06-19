@@ -4,6 +4,7 @@ import it.unimi.di.fachini.imp.compiler.*;
 import it.unimi.di.fachini.imp.compiler.ast.*;
 import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
 import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.StatementFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.IOStatementFactory;
@@ -23,6 +24,20 @@ action code {:
 
 	// keep a list for the variables declarations (in the order in which they are defined)
 	protected List<Declaration> declarations = new ArrayList<>();
+
+	// utility for declaring variables
+	protected Descriptor declareVariable(String ident) {
+		if (symbolTable.contains(ident))
+			throw new CompilerError("Multiple declaration of: " + ident);
+		return symbolTable.addIdent(ident);
+	}
+
+	protected Descriptor getVariable(String ident) {
+		// throw an exception if the identifier has not been previously declared
+		if (!symbolTable.contains(ident))
+			throw new CompilerError("Undeclared identifier: " + ident);	
+		return symbolTable.get(ident);
+	}
 :}
 
 /**
@@ -100,21 +115,13 @@ decl ::= VAR identSeq:identifiers SEMI_COLON
 
 identSeq ::= IDENT:id
 		   	 {:
-				if (symbolTable.contains(id)) {
-					throw new CompilerError("Multiple declaration of " + id);
-				}
-				List<Descriptor> lst = new ArrayList<>();
-				Descriptor d = symbolTable.addIdent(id);
-				lst.add(d);
-				RESULT = lst;
+				List<Descriptor> identifiers = new ArrayList<>();				
+				identifiers.add(declareVariable(id));
+				RESULT = identifiers;
 			 :}
 		   | identSeq:identifiers COMMA IDENT:id
 		   	 {:
-				if (symbolTable.contains(id)) {
-					throw new CompilerError("Multiple declaration of " + id);
-				}
-				Descriptor d = symbolTable.addIdent(id);
-				identifiers.add(d);
+				identifiers.add(declareVariable(id));
 				RESULT = identifiers;
 			 :}
 		   ;
@@ -134,14 +141,7 @@ stmt ::= assignment:assignStmt
 	   ;
 
 assignment ::= IDENT:ident ASSIGNTO expr:e SEMI_COLON
-			   {:
-					// throw an exception if an identifier has not been previously declared
-			   		if (!symbolTable.contains(ident)) {
-			       		throw new CompilerError("Undeclared identifier: " + ident);	
-			   		}
-			   		Descriptor d = symbolTable.get(ident);
-		       		RESULT = StatementFactory.assign(d, e);
-		       :}
+			   {: RESULT = StatementFactory.assign(getVariable(ident), e); :}
 		 	 ;
 
 ifStmt ::= IF OPEN_PAREN condition:cond CLOSE_PAREN stmt:consequent ELSE stmt:alternative
@@ -184,14 +184,8 @@ block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
 
 expr ::= NUM:n
 	   	 {: RESULT = AtomFactory.num(n); :}
-	   | IDENT:ident {:
-			// throw an exception if an identifier has not been previously declared
-			if (!symbolTable.contains(ident)) {
-				throw new CompilerError("Undeclared identifier: " + ident);	
-			}
-			Descriptor d = symbolTable.get(ident);
-			RESULT = AtomFactory.var(d);
-		 :}
+	   | IDENT:ident 
+	   	 {: RESULT = AtomFactory.var(getVariable(ident)); :}
 	   | expr:e1 PLUS expr:e2
 	 	 {: RESULT = ArithOpFactory.add(e1, e2); :}
 	   | expr:e1 MINUS expr:e2

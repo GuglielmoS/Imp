@@ -9,6 +9,7 @@ import it.unimi.di.fachini.imp.compiler.*;
 import it.unimi.di.fachini.imp.compiler.ast.*;
 import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
 import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.StatementFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.IOStatementFactory;
@@ -262,6 +263,20 @@ class CUP$Parser$actions {
 	// keep a list for the variables declarations (in the order in which they are defined)
 	protected List<Declaration> declarations = new ArrayList<>();
 
+	// utility for declaring variables
+	protected Descriptor declareVariable(String ident) {
+		if (symbolTable.contains(ident))
+			throw new CompilerError("Multiple declaration of: " + ident);
+		return symbolTable.addIdent(ident);
+	}
+
+	protected Descriptor getVariable(String ident) {
+		// throw an exception if the identifier has not been previously declared
+		if (!symbolTable.contains(ident))
+			throw new CompilerError("Undeclared identifier: " + ident);	
+		return symbolTable.get(ident);
+	}
+
   private final Parser parser;
 
   /** Constructor */
@@ -374,13 +389,9 @@ class CUP$Parser$actions {
 		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-				if (symbolTable.contains(id)) {
-					throw new CompilerError("Multiple declaration of " + id);
-				}
-				List<Descriptor> lst = new ArrayList<>();
-				Descriptor d = symbolTable.addIdent(id);
-				lst.add(d);
-				RESULT = lst;
+				List<Descriptor> identifiers = new ArrayList<>();				
+				identifiers.add(declareVariable(id));
+				RESULT = identifiers;
 			 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("identSeq",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -397,11 +408,7 @@ class CUP$Parser$actions {
 		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-				if (symbolTable.contains(id)) {
-					throw new CompilerError("Multiple declaration of " + id);
-				}
-				Descriptor d = symbolTable.addIdent(id);
-				identifiers.add(d);
+				identifiers.add(declareVariable(id));
 				RESULT = identifiers;
 			 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("identSeq",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -487,14 +494,7 @@ class CUP$Parser$actions {
 		int eleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int eright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Expr e = (Expr)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		
-					// throw an exception if an identifier has not been previously declared
-			   		if (!symbolTable.contains(ident)) {
-			       		throw new CompilerError("Undeclared identifier: " + ident);	
-			   		}
-			   		Descriptor d = symbolTable.get(ident);
-		       		RESULT = StatementFactory.assign(d, e);
-		       
+		 RESULT = StatementFactory.assign(getVariable(ident), e); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("assignment",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -713,14 +713,7 @@ class CUP$Parser$actions {
 		int identleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int identright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		String ident = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		
-			// throw an exception if an identifier has not been previously declared
-			if (!symbolTable.contains(ident)) {
-				throw new CompilerError("Undeclared identifier: " + ident);	
-			}
-			Descriptor d = symbolTable.get(ident);
-			RESULT = AtomFactory.var(d);
-		 
+		 RESULT = AtomFactory.var(getVariable(ident)); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr",12, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

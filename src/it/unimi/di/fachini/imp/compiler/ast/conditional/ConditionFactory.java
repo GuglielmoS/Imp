@@ -1,30 +1,29 @@
 package it.unimi.di.fachini.imp.compiler.ast.conditional;
 
-import it.unimi.di.fachini.imp.compiler.ast.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class ConditionFactory {
 	public static Condition eq(Expr left, Expr right) {
-		return new EQCondition(left, right);
+		return new Condition(ConditionType.EQ, left, right);
 	}
 
 	public static Condition ne(Expr left, Expr right) {
-		return new NECondition(left, right);
+		return new Condition(ConditionType.NE, left, right);
 	}
 
 	public static Condition lt(Expr left, Expr right) {
-		return new LTCondition(left, right);
+		return new Condition(ConditionType.LT, left, right);
 	}
 
 	public static Condition le(Expr left, Expr right) {
-		return new LECondition(left, right);
+		return new Condition(ConditionType.LE, left, right);
 	}
 	
 	public static Condition gt(Expr left, Expr right) {
-		return new GTCondition(left, right);
+		return new Condition(ConditionType.GT, left, right);
 	}
 
 	public static Condition ge(Expr left, Expr right) {
-		return new GECondition(left, right);
+		return new Condition(ConditionType.GE, left, right);
 	}
 }
