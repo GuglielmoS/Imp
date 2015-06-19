@@ -35,7 +35,23 @@ public class Compiler {
 					"i = i - 1;" +
 				"}");*/
 		//StringReader buf = new StringReader("write ((8 % 5) % 2); writeln; write (9 % 4); writeln;");
-		StringReader buf = new StringReader("if (1==1) if (2!=2) writemsg \"KO\"; else writemsg \"OK\";");
+		//StringReader buf = new StringReader("if (1==1) if (2!=2) writemsg \"KO\"; else writemsg \"OK\";");
+		//StringReader buf = new StringReader("if (1<1) ; if (2>2) writemsg \"KO\"; else writemsg \"OK\";");
+		//StringReader buf = new StringReader("if (1<=1) writemsg \"OK\"; else writemsg \"KO\";");
+		//StringReader buf = new StringReader("if (1>=1) writemsg \"OK\"; else writemsg \"KO\";");
+		StringReader buf = new StringReader(
+				"var dividendo, divisore;" +
+				"dividendo = 12;" +
+				"divisore = 9;" +
+				"while (divisore != 0) {" +
+					"var resto;" +
+					"resto = dividendo % divisore;" +
+					"dividendo = divisore;" +
+					"divisore = resto;" +
+				"}" +
+				"writemsg \"MCD = \";" +
+				"write dividendo;" +
+				"writeln;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);
