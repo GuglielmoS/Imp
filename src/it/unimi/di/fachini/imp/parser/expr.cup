@@ -72,7 +72,7 @@ start with prog;
 /* productions */
 
 prog ::= seqDeclAndStmts:stmts
-		 {: RESULT = new Program(declarations, stmts, symbolTable); :}
+		 {: RESULT = new Program("CompiledProg", declarations, stmts, symbolTable); :}
 	   ;
 
 seqDeclAndStmts ::= seqDeclAndStmts:stmts decl:d

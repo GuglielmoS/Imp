@@ -273,7 +273,7 @@ class CUP$Parser$actions {
 		int stmtsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int stmtsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		List<Statement> stmts = (List<Statement>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = new Program(declarations, stmts, symbolTable); 
+		 RESULT = new Program("CompiledProg", declarations, stmts, symbolTable); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("prog",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
