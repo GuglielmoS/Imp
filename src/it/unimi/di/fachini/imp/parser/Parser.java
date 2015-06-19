@@ -11,10 +11,14 @@ import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
 import it.unimi.di.fachini.imp.compiler.ast.arith.ArithOpFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.StatementFactory;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.IOStatementFactory;
-import it.unimi.di.fachini.imp.compiler.ast.declaration.DeclarationFactory;
+import it.unimi.di.fachini.imp.compiler.declaration.Declaration;
+import it.unimi.di.fachini.imp.compiler.declaration.DeclarationFactory;
+import it.unimi.di.fachini.imp.compiler.error.CompilerError;
 import java_cup.runtime.*;
+
 import java.util.List;
 import java.util.ArrayList;
+
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20150326 (SVN rev 63) generated parser.

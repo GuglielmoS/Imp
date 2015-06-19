@@ -1,7 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.atom;
 
-import org.objectweb.asm.MethodVisitor;
-
+import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class NumExpr extends Expr {
@@ -16,7 +15,7 @@ public class NumExpr extends Expr {
 	}
 
 	@Override
-	public void compile(MethodVisitor mw) {
-		mw.visitLdcInsn(value);
+	public void accept(ASTVisitor v) {
+		v.visitNum(this);
 	}
 }

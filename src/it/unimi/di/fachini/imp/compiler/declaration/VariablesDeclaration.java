@@ -1,11 +1,8 @@
-package it.unimi.di.fachini.imp.compiler.ast.declaration;
+package it.unimi.di.fachini.imp.compiler.declaration;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
-import it.unimi.di.fachini.imp.compiler.ast.Declaration;
 
 import java.util.List;
-
-import org.objectweb.asm.MethodVisitor;
 
 public class VariablesDeclaration extends Declaration {
 	private final List<Descriptor> identifiers;
@@ -17,10 +14,5 @@ public class VariablesDeclaration extends Declaration {
 	@Override
 	public List<Descriptor> getDeclaredIdentifiers() {
 		return identifiers;
-	}
-
-	@Override
-	public void compile(MethodVisitor methodWriter) {
-		// TODO Auto-generated method stub
 	}
 }

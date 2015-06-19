@@ -1,10 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
+import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
-
-import static org.objectweb.asm.Opcodes.NOP;
-
-import org.objectweb.asm.MethodVisitor;
 
 public class EmptyStatement extends Statement {
 	EmptyStatement() {
@@ -12,7 +9,7 @@ public class EmptyStatement extends Statement {
 	}
 
 	@Override
-	public void compile(MethodVisitor methodWriter) {
-		methodWriter.visitInsn(NOP);
+	public void accept(ASTVisitor v) {
+		v.visitEmpty(this);
 	}
 }

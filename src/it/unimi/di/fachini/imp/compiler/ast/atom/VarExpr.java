@@ -1,10 +1,8 @@
 package it.unimi.di.fachini.imp.compiler.ast.atom;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
+import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
-
-import static org.objectweb.asm.Opcodes.*;
-import org.objectweb.asm.MethodVisitor;
 
 public class VarExpr extends Expr {
 	private Descriptor descriptor;
@@ -18,7 +16,7 @@ public class VarExpr extends Expr {
 	}
 
 	@Override
-	public void compile(MethodVisitor mw) {
-		mw.visitVarInsn(ILOAD, descriptor.getIndex());
+	public void accept(ASTVisitor v) {
+		v.visitVar(this);
 	}
 }

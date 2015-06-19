@@ -1,12 +1,8 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
+import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
-
-import static org.objectweb.asm.Opcodes.*;
-
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 
 public class IfStatement extends Statement {
 	private final Expr condition;
@@ -43,26 +39,7 @@ public class IfStatement extends Statement {
 	}
 
 	@Override
-	public void compile(MethodVisitor mw) {
-		// condition check & jump
-		condition.compile(mw);
-		Label alternativeOrEnd = new Label();
-		mw.visitJumpInsn(IFEQ, alternativeOrEnd);
-
-		// consequent branch
-		consequent.compile(mw);
-		Label end = new Label();
-		mw.visitJumpInsn(GOTO, end);
-
-		// alternative branch (if it exists)
-		mw.visitLabel(alternativeOrEnd);
-		mw.visitFrame(F_SAME, 0, null, 0, null);
-		if (hasAlternative()) {
-			alternative.compile(mw);
-		}
-
-		// if's end
-		mw.visitLabel(end);
-		mw.visitFrame(F_SAME, 0, null, 0, null);
+	public void accept(ASTVisitor v) {
+		v.visitIf(this);
 	}
 }

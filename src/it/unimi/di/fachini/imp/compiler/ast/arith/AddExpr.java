@@ -1,7 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.arith;
 
-import org.objectweb.asm.MethodVisitor;
-
+import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class AddExpr extends Expr {
@@ -12,7 +11,7 @@ public class AddExpr extends Expr {
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	public Expr getLeft() {
 		return left;
 	}
@@ -22,7 +21,7 @@ public class AddExpr extends Expr {
 	}
 
 	@Override
-	public void compile(MethodVisitor methodWriter) {
-		// TODO Auto-generated method stub
+	public void accept(ASTVisitor v) {
+		v.visitAdd(this);
 	}
 }

@@ -1,7 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
-import org.objectweb.asm.MethodVisitor;
-
+import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
@@ -23,7 +22,7 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public void compile(MethodVisitor methodWriter) {
-		// TODO Auto-generated method stub
+	public void accept(ASTVisitor v) {
+		v.visitWhile(this);
 	}
 }
