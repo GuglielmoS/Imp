@@ -18,33 +18,10 @@ public class BlockStatement extends Statement {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((statements == null) ? 0 : statements.hashCode());
-		return result;
-	}
-
-	@Override
-	public void compile(MethodVisitor methodWriter) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BlockStatement other = (BlockStatement) obj;
-		if (statements == null) {
-			if (other.statements != null)
-				return false;
-		} else if (!statements.equals(other.statements))
-			return false;
-		return true;
+	public void compile(MethodVisitor mw) {
+		// compile the statements sequentially
+		for (Statement stmt : statements) {
+			stmt.compile(mw);
+		}
 	}
 }

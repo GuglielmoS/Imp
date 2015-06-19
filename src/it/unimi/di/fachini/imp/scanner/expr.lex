@@ -14,6 +14,8 @@ import java_cup.runtime.*;
 
 %{
 	protected ComplexSymbolFactory sf;
+	protected StringBuffer stringBuffer = new StringBuffer();
+	
     public Scanner(java.io.Reader in, ComplexSymbolFactory sf) {
 		this(in);
 		this.sf = sf;
@@ -25,6 +27,12 @@ Letter = [:letter:]
 InputCharacter = [^\r\n]
 LineTerminator = \r|\n|\r\n
 WhiteSpace = {LineTerminator} | [ \t\f]
+
+/*
+ * States 
+ */
+
+%state STRING
 
 %%
 
@@ -92,10 +100,31 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	{Letter}({Letter}|{Digit})* {return sf.newSymbol("IDENT", ParserSym.IDENT, yytext());}
 	
 	/*
+	 * Strings
+	 */
+	\" {stringBuffer.setLength(0); yybegin(STRING);}
+	
+	/*
 	 * Other
 	 */
 	
 	{WhiteSpace} { }
+}
+
+<STRING> {
+	  // string's end
+      \" 			{yybegin(YYINITIAL); 
+           			 return sf.newSymbol("STRING", ParserSym.STRING, stringBuffer.toString());}
+
+      // string simple characters
+      [^\n\r\"\\]+  {stringBuffer.append(yytext());}
+      
+      // escaped characters
+      \\t           {stringBuffer.append('\t');}
+      \\n           {stringBuffer.append('\n');}
+      \\r           {stringBuffer.append('\r');}
+      \\\"          {stringBuffer.append('\"');}
+      \\            {stringBuffer.append('\\');}
 }
 
 /*

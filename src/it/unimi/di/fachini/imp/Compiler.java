@@ -11,7 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Compiler {
 	public static void main(String[] args) {
-		StringReader buf = new StringReader("write 42;");
+		StringReader buf = new StringReader("var answer; answer = 42;" + 
+											"writemsg \"The ultimate answer is \";" +
+											"write answer;" +
+											"writeln;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 		Parser parser = new Parser(scanner, sf);

@@ -40,6 +40,7 @@ terminal VAR, IF, ELSE, WHILE, WRITE, WRITEMSG, WRITELN;
 // atomitc values
 terminal Integer NUM;
 terminal String IDENT;
+terminal String STRING;
 
 /**
  * AST
@@ -54,6 +55,7 @@ non terminal Statement assignment;
 non terminal Statement ifStmt;
 non terminal Statement whileStmt;
 non terminal Statement writeStmt;
+non terminal String string;
 non terminal Statement block;
 non terminal Expr expr;
 
@@ -149,10 +151,13 @@ whileStmt ::= WHILE OPEN_PAREN expr:condition CLOSE_PAREN stmt:body
 
 writeStmt ::= WRITE expr:e SEMI_COLON
 			  {: RESULT = IOStatementFactory.write(e); :}
-			//| WRITEMSG TODO
+			| WRITEMSG string:s
+			  {: RESULT = IOStatementFactory.writeMessage(s); :}
 			| WRITELN SEMI_COLON
 			  {: RESULT = IOStatementFactory.writeMessage("\n"); :}
 			;
+
+string ::= STRING:s {: RESULT = s; :};
 
 block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
 		  {: RESULT = StatementFactory.block(statements); :}

@@ -21,6 +21,7 @@ public class ParserSym {
   public static final int ClOSE_CURLY_BRACE = 14;
   public static final int WRITE = 19;
   public static final int NUM = 22;
+  public static final int STRING = 24;
   public static final int OPEN_CURLY_BRACE = 13;
   public static final int COMMA = 2;
   public static final int EOF = 0;
@@ -56,7 +57,8 @@ public class ParserSym {
   "WRITEMSG",
   "WRITELN",
   "NUM",
-  "IDENT"
+  "IDENT",
+  "STRING"
   };
 }
 

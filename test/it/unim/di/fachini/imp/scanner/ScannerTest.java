@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.Symbol;
 
 import org.junit.Test;
 
@@ -57,6 +58,54 @@ public class ScannerTest {
 			assertEquals("a", scanner.next_token().value);
 			assertEquals("abc", scanner.next_token().value);
 			assertEquals("abc123", scanner.next_token().value);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testEmptyString() {
+		StringReader buf = new StringReader("\"\"");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
+			Symbol token = scanner.next_token();
+			assertEquals(ParserSym.STRING, token.sym);
+			assertEquals("", token.value);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testStringWithEscapeCharacters() {
+		StringReader buf = new StringReader("\"\\t\\n\\r\\\"\"");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
+			Symbol token = scanner.next_token();
+			assertEquals(ParserSym.STRING, token.sym);
+			assertEquals("\t\n\r\"", token.value);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testSimpleString() {
+		StringReader buf = new StringReader("\"abcdefg\"");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
+			Symbol token = scanner.next_token();
+			assertEquals(ParserSym.STRING, token.sym);
+			assertEquals("abcdefg", token.value);
 			assertEquals(ParserSym.EOF, scanner.next_token().sym);
 		} catch (IOException e) {
 			fail("Scanner error: " + e.getMessage());

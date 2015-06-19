@@ -20,12 +20,13 @@ public class Descriptor {
 	public int getIndex() {
 		return index;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + index;
 		return result;
 	}
 
@@ -42,6 +43,8 @@ public class Descriptor {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (index != other.index)
 			return false;
 		return true;
 	}

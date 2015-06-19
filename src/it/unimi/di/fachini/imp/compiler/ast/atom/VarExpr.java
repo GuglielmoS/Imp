@@ -21,29 +21,4 @@ public class VarExpr extends Expr {
 	public void compile(MethodVisitor mw) {
 		mw.visitVarInsn(ILOAD, descriptor.getIndex());
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((descriptor == null) ? 0 : descriptor.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		VarExpr other = (VarExpr) obj;
-		if (descriptor == null) {
-			if (other.descriptor != null)
-				return false;
-		} else if (!descriptor.equals(other.descriptor))
-			return false;
-		return true;
-	}
 }

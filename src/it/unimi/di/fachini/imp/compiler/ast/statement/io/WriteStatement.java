@@ -1,7 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement.io;
 
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.*;
 
 import org.objectweb.asm.MethodVisitor;
 
@@ -17,38 +16,16 @@ public class WriteStatement extends Statement {
 
 	@Override
 	public void compile(MethodVisitor mw) {
-        // pushes the 'out' field (of type PrintStream) of the System class
+        // retrieve System.out and push it onto the stack
         mw.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-
-		// compile the expression to be printed
+		
+		// compile the expression to be printed and push it onto the stack
 		expr.compile(mw);
 
-        // invokes the 'print' method (defined in the PrintStream class)
+		// invoke Integer.toString()
+        mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "toString", "(I)Ljava/lang/String;", false);
+
+        // invoke System.out.println()
         mw.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((expr == null) ? 0 : expr.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		WriteStatement other = (WriteStatement) obj;
-		if (expr == null) {
-			if (other.expr != null)
-				return false;
-		} else if (!expr.equals(other.expr))
-			return false;
-		return true;
 	}
 }
