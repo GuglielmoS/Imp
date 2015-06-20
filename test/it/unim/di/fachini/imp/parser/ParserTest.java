@@ -300,6 +300,28 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testForWithStepAndEmptyBody() {
+		StringReader buf = new StringReader("var i;for(i=0,10,2);");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof ForStatement);
+			ForStatement forStmt = (ForStatement)statements.get(0);
+			assertTrue(forStmt.getStart() instanceof NumExpr);
+			assertTrue(forStmt.getEnd() instanceof NumExpr);
+			assertTrue(forStmt.getStep() instanceof NumExpr);
+			assertTrue(forStmt.getBody() instanceof EmptyStatement);
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
 	public void testEmptyBlock() {
 		StringReader buf = new StringReader("{}");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();

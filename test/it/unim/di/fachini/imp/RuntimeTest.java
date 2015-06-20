@@ -143,6 +143,23 @@ public class RuntimeTest {
 		assertEquals("012345678910", Util.runProgram("var i;for(i=0,10)write i;", ""));
 	}
 
+	@Test
+	public void testForWithPositiveStep() throws Exception {
+		assertEquals("0246810", Util.runProgram("var i;for(i=0,10,2)write i;", ""));
+	}
+
+	@Test
+	public void testForWithNegativeStep() throws Exception {
+		assertEquals("1086420", Util.runProgram("var i;for(i=10,0,-2)write i;", ""));
+		assertEquals("2017", Util.runProgram("var i;for(i=20,15,-3)write i;", ""));
+	}
+
+	@Test
+	public void testForWithoutBodyExecution() throws Exception {
+		assertEquals("", Util.runProgram("var i;for(i=0,-1)write i;", ""));
+		assertEquals("", Util.runProgram("var i;for(i=20,21,-1)write i;", ""));
+	}
+	
 	/*
 	 * BLOCK statement
 	 */

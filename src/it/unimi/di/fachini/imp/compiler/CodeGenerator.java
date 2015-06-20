@@ -27,7 +27,7 @@ import static org.objectweb.asm.Opcodes.ISUB;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.NOP;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.*;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.arith.AddExpr;
@@ -35,6 +35,7 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.DivExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.ModExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
+import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
@@ -226,6 +227,12 @@ public class CodeGenerator implements ASTVisitor {
 		// destroy the used local variables
 		destroyLocal();
 		destroyLocal();
+	}
+
+	@Override
+	public void visitUnaryMinus(UnaryMinusExpr expr) {
+		expr.getTarget().accept(this);
+		mv.visitInsn(INEG);
 	}
 
 	@Override

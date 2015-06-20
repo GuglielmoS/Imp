@@ -5,6 +5,7 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.DivExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.ModExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
+import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
@@ -29,7 +30,8 @@ public interface ASTVisitor {
 	void visitMul(MulExpr expr);
 	void visitDiv(DivExpr expr);
 	void visitMod(ModExpr expr);
-
+	void visitUnaryMinus(UnaryMinusExpr expr);
+	
 	// IO statements
 	void visitWrite(WriteStatement writeStmt);
 	void visitWriteMessage(WriteMessageStatement writeMsgStmt);

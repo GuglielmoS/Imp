@@ -24,10 +24,10 @@ public class ArithOpFactory {
 	}
 
 	public static Expr unaryPlus(Expr target) {
-		return null;
+		return target;
 	}
 
 	public static Expr unaryMinus(Expr target) {
-		return null;
+		return new UnaryMinusExpr(target);
 	}
 }

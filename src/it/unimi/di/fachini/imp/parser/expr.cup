@@ -168,6 +168,8 @@ doWhileStmt ::= DO stmt:body WHILE OPEN_PAREN condition:cond CLOSE_PAREN
 
 forStmt ::= FOR OPEN_PAREN IDENT:ident ASSIGNTO expr:start COMMA expr:end CLOSE_PAREN stmt:body
 		  	{: RESULT = StatementFactory.forStmt(body, getVariable(ident), start, end); :}
+		  | FOR OPEN_PAREN IDENT:ident ASSIGNTO expr:start COMMA expr:end COMMA expr:step CLOSE_PAREN stmt:body
+		  	{: RESULT = StatementFactory.forStmt(body, getVariable(ident), start, end, step); :}
 		  ;
 
 condition ::= expr:e1 LT expr:e2
