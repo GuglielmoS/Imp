@@ -1,4 +1,6 @@
-package it.unimi.di.fachini.imp.compiler;
+package it.unimi.di.fachini.imp.compiler.declaration;
+
+import it.unimi.di.fachini.imp.compiler.Descriptor;
 
 import java.util.List;
 
