@@ -47,7 +47,7 @@ public class CodeGenerator implements ASTVisitor {
 	private int destroyLocal() {
 		return --nextLocalVar;
 	}
-
+	
 	public byte[] compile(Program program) {
 		resetLocalVariables();
 
@@ -55,56 +55,13 @@ public class CodeGenerator implements ASTVisitor {
 		ClassWriter cw = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
 		cw.visit(V1_8, ACC_PUBLIC, program.getName(), null, "java/lang/Object", null);
 
-		/*********************************************************************
-		 * Create the default constructor
-		 *********************************************************************/
-
-		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-		mv.visitCode();
-		// pushes the 'this' variable
-		mv.visitVarInsn(ALOAD, 0);
-		// invokes the super class constructor
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
-				false);
-		mv.visitInsn(RETURN);
-		// this code uses a maximum of one stack element and one local variable
-		mv.visitMaxs(-1, -1);
-		mv.visitEnd();
-
-		/*********************************************************************
-		 * Create the main method
-		 *********************************************************************/
-
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
-				"([Ljava/lang/String;)V", null, null);
-		mv.visitCode();
-
-		/*********************************************************************
-		 * Declare the local variables
-		 *********************************************************************/
-
-		// start from 1 because the main function receives an argument (String[] args)
-		reserveLocal();
-		for (Declaration decl : program.getDeclarations()) {
-			for (Descriptor descriptor : decl.getDeclaredIdentifiers()) {
-				descriptor.setIndex(reserveLocal());
-			}
-		}
-
-		/*********************************************************************
-		 * Compile the program statements sequentially
-		 *********************************************************************/
-
-		for (Statement stmt : program.getStatements()) {
-			stmt.accept(this);
-		}
-
-		// exit from the main method
-		mv.visitInsn(RETURN);
-
-		// define the max stack elements and local variables
-		mv.visitMaxs(-1,-1);
-		mv.visitEnd();
+		/*
+		 * Generate the bytecode for the default constructor, the program code
+		 * and the main function.
+		 */
+		genDefaultConstructor(program, cw);
+		genExecute(program, cw);
+		genMain(program, cw);
 
 		PrintWriter pw = new PrintWriter(System.out);
 		CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
@@ -113,6 +70,64 @@ public class CodeGenerator implements ASTVisitor {
 		return cw.toByteArray();
 	}
 
+	private void genMain(Program program, ClassWriter cw) {
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
+				"([Ljava/lang/String;)V", null, null);
+		mv.visitCode();
+
+		// execute the program by calling execute(System.in, System.out)
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+		mv.visitMethodInsn(INVOKESTATIC, program.getName(), "execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V", false);
+
+		// exit from the main method
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(-1,-1);
+		mv.visitEnd();
+	}
+
+	private void genExecute(Program program, ClassWriter cw) {
+		// public static void execute(InputStream in, PrintStream out)
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
+							"execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V",
+							null, null);
+		mv.visitCode();
+
+		// reserve a local variable for each argument
+		reserveLocal(); // InputStream in
+		reserveLocal(); // PrintStream out
+
+		// declare local variables
+		for (Declaration decl : program.getDeclarations()) {
+			for (Descriptor descriptor : decl.getDeclaredIdentifiers()) {
+				descriptor.setIndex(reserveLocal());
+			}
+		}
+
+		// compile the program statement by statement
+		for (Statement stmt : program.getStatements()) {
+			stmt.accept(this);
+		}
+
+		// return from the method
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(-1, -1);
+		mv.visitEnd();
+	}
+
+	private void genDefaultConstructor(Program program, ClassWriter cw) {
+		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+		mv.visitCode();
+		// pushes the 'this' variable
+		mv.visitVarInsn(ALOAD, 0);
+		// invokes the super class constructor
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+		mv.visitInsn(RETURN);
+		// this code uses a maximum of one stack element and one local variable
+		mv.visitMaxs(-1, -1);
+		mv.visitEnd();
+	}
+	
 	@Override
 	public void visitNum(NumExpr expr) {
 		mv.visitLdcInsn(expr.getValue());
@@ -180,8 +195,8 @@ public class CodeGenerator implements ASTVisitor {
 
 	@Override
 	public void visitWrite(WriteStatement writeStmt) {
-		// retrieve System.out and push it onto the stack
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+		// retrieve the output stream from the local variables
+		pushOutputStream();
 
 		// compile the expression to be printed and push it onto the stack
 		writeStmt.getExpr().accept(this);
@@ -197,8 +212,8 @@ public class CodeGenerator implements ASTVisitor {
 
 	@Override
 	public void visitWriteMessage(WriteMessageStatement writeMsgStmt) {
-		// push the 'out' field (of type PrintStream) of the System class
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+		// retrieve the output stream from the local variables
+		pushOutputStream();
 
 		// push the string to be printed
 		mv.visitLdcInsn(writeMsgStmt.getMessage());
@@ -212,7 +227,8 @@ public class CodeGenerator implements ASTVisitor {
 		// create a new java.util.Scanner object
 		mv.visitTypeInsn(NEW, "java/util/Scanner");
 		mv.visitInsn(DUP);
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
+		// retrieve the input stream from the local variables
+		pushInputStream();
 		mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
 		// call nextInt() on the created object
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
@@ -300,5 +316,13 @@ public class CodeGenerator implements ASTVisitor {
 			case LT: return IFGE;
 			default: throw new IllegalStateException("Invalid condition given: " + type);
 		}
+	}
+
+	private void pushOutputStream() {
+		mv.visitVarInsn(ALOAD, 1);
+	}
+
+	private void pushInputStream() {
+		mv.visitVarInsn(ALOAD, 0);
 	}
 }
