@@ -141,6 +141,7 @@ public class RuntimeTest {
 	@Test
 	public void testForWithoutStep() throws Exception {
 		assertEquals("012345678910", Util.runProgram("var i;for(i=0,10)write i;", ""));
+		assertEquals("55", Util.runProgram("var x,y,i;x=0;y=5;for(i=1,2*y){x=x+i;y=y-1;}write x;", ""));
 	}
 
 	@Test

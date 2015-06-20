@@ -4,7 +4,7 @@ import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 
-public class IfStatement implements Statement {
+public class IfStatement extends Statement {
 	private final Condition condition;
 	private final Statement consequent;
 	private final Statement alternative;

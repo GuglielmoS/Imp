@@ -3,7 +3,7 @@ package it.unimi.di.fachini.imp.compiler.ast.statement;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
-public class EmptyStatement implements Statement {
+public class EmptyStatement extends Statement {
 	EmptyStatement() {
 		// DO NOTHING
 	}

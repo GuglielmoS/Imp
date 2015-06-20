@@ -5,7 +5,7 @@ import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
-public class ForStatement implements Statement {
+public class ForStatement extends Statement {
 	private final Statement body;
 	private final Descriptor iterVar;
 	private final Expr start;
