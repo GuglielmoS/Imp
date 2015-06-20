@@ -5,3 +5,4 @@ bin/
 generate
 lib/
 doc/
+examples/*.class

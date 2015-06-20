@@ -1,0 +1,2 @@
+writemsg "Hello, world!";
+writeln;

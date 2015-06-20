@@ -15,10 +15,11 @@ public class Compiler {
 	private byte[] bytecode;
 	private String programName;
 
-	public Compiler(Reader code) {
+	public Compiler(String programName, Reader code) {
 		this.code = code;
+		this.programName = programName;
 	}
-	
+
 	public byte[] compile() throws CompilerError {
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(code, sf);
@@ -32,11 +33,8 @@ public class Compiler {
 			throw new CompilerError("Parsing error: " + e.getMessage());
 		}
 
-		// store the program name
-		programName = program.getName();
-		
 		// compile the input code
-		bytecode = new CodeGenerator().compile(program);
+		bytecode = new CodeGenerator(programName).compile(program);
 		return bytecode;
 	}
 

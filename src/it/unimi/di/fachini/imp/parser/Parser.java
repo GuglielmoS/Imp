@@ -326,7 +326,7 @@ class CUP$Parser$actions {
 	// keep a symbol table
 	protected SymbolTable symbolTable = new SymbolTable();
 
-	// keep a list for the variables declarations (in the order in which they are defined)
+	// keep a list of variables declarations (in the order in which they are defined)
 	protected List<Declaration> declarations = new ArrayList<>();
 
 	// utility for declaring variables
@@ -336,8 +336,8 @@ class CUP$Parser$actions {
 		return symbolTable.addIdent(ident);
 	}
 
+	// utility for retrieving a declared variable
 	protected Descriptor getVariable(String ident) {
-		// throw an exception if the identifier has not been previously declared
 		if (!symbolTable.contains(ident))
 			throw new CompilerError("Undeclared identifier: " + ident);	
 		return symbolTable.get(ident);
@@ -385,7 +385,7 @@ class CUP$Parser$actions {
 		int stmtsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int stmtsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		List<Statement> stmts = (List<Statement>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = new Program("CompiledProg", declarations, stmts, symbolTable); 
+		 RESULT = new Program(declarations, stmts, symbolTable); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("prog",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

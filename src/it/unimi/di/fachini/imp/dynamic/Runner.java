@@ -20,7 +20,7 @@ public class Runner {
 	}
 
 	public void execute() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		Compiler compiler = new Compiler(code);
+		Compiler compiler = new Compiler("CompiledProg", code);
 		byte[] bytecode = compiler.compile();
 		RuntimeClassLoader loader = new RuntimeClassLoader();
 		Class<?> clazz = loader.defineClass(compiler.getProgramName(), bytecode);

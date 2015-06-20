@@ -21,7 +21,7 @@ action code {:
 	// keep a symbol table
 	protected SymbolTable symbolTable = new SymbolTable();
 
-	// keep a list for the variables declarations (in the order in which they are defined)
+	// keep a list of variables declarations (in the order in which they are defined)
 	protected List<Declaration> declarations = new ArrayList<>();
 
 	// utility for declaring variables
@@ -31,15 +31,15 @@ action code {:
 		return symbolTable.addIdent(ident);
 	}
 
+	// utility for retrieving a declared variable
 	protected Descriptor getVariable(String ident) {
-		// throw an exception if the identifier has not been previously declared
 		if (!symbolTable.contains(ident))
 			throw new CompilerError("Undeclared identifier: " + ident);	
 		return symbolTable.get(ident);
 	}
 :}
 
-/**
+/*
  * Tokens
  */
 
@@ -60,7 +60,7 @@ terminal Integer NUM;
 terminal String IDENT;
 terminal String STRING;
 
-/**
+/*
  * AST
  */
 
@@ -81,7 +81,7 @@ non terminal String string;
 non terminal Statement block;
 non terminal Expr expr;
 
-/**
+/*
  * Precedence and associativity
  */
 
@@ -89,12 +89,12 @@ precedence left PLUS, MINUS;
 precedence left MUL, DIV, MOD;
 precedence nonassoc UNARY;
 
-start with prog;
-
 /* productions */
 
+start with prog;
+
 prog ::= seqDeclAndStmts:stmts
-		 {: RESULT = new Program("CompiledProg", declarations, stmts, symbolTable); :}
+		 {: RESULT = new Program(declarations, stmts, symbolTable); :}
 	   ;
 
 seqDeclAndStmts ::= seqDeclAndStmts:stmts decl:d

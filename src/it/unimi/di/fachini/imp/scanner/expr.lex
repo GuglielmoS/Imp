@@ -88,7 +88,7 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"=" {return sf.newSymbol("ASSIGNTO", ParserSym.ASSIGNTO);}
 
 	/*
-	 * Reserved keywords.
+	 * Reserved keywords
 	 */
 
 	"var"		{return sf.newSymbol("VAR", ParserSym.VAR);}

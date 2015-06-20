@@ -9,22 +9,11 @@ public class Program {
 	private final List<Declaration> declarations;
 	private final List<Statement> statements;
 	private final SymbolTable table;
-	private String name;
 
-	public Program(String name, List<Declaration> declarations,
-			List<Statement> statements, SymbolTable table) {
-		this.name = name;
+	public Program(List<Declaration> declarations, List<Statement> statements, SymbolTable table) {
 		this.declarations = declarations;
 		this.statements = statements;
 		this.table = table;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public List<Declaration> getDeclarations() {

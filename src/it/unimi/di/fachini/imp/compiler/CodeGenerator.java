@@ -2,31 +2,6 @@ package it.unimi.di.fachini.imp.compiler;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IADD;
-import static org.objectweb.asm.Opcodes.IDIV;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.IFGE;
-import static org.objectweb.asm.Opcodes.IFGT;
-import static org.objectweb.asm.Opcodes.IFLE;
-import static org.objectweb.asm.Opcodes.IFLT;
-import static org.objectweb.asm.Opcodes.IFNE;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.IMUL;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.ISUB;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.NOP;
-import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.*;
 import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
@@ -61,6 +36,11 @@ public class CodeGenerator implements ASTVisitor {
 	private int nextLocalVar;
 	private int scannerIndex;
 	private int inputIndex, outputIndex;
+	private final String programName;
+
+	public CodeGenerator(String programName) {
+		this.programName = programName;
+	}
 	
 	private void resetLocalVariables() {
 		nextLocalVar = 0;
@@ -82,7 +62,7 @@ public class CodeGenerator implements ASTVisitor {
 
 		// creates a ClassWriter to compile the parsed program
 		ClassWriter cw = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
-		cw.visit(V1_8, ACC_PUBLIC, program.getName(), null, "java/lang/Object", null);
+		cw.visit(V1_8, ACC_PUBLIC, programName, null, "java/lang/Object", null);
 
 		/*
 		 * Generate the bytecode for the default constructor, the program code
@@ -97,14 +77,13 @@ public class CodeGenerator implements ASTVisitor {
 	}
 
 	private void genMain(Program program, ClassWriter cw) {
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
-				"([Ljava/lang/String;)V", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 		mv.visitCode();
 
 		// execute the program by calling execute(System.in, System.out)
 		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
 		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-		mv.visitMethodInsn(INVOKESTATIC, program.getName(), "execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V", false);
+		mv.visitMethodInsn(INVOKESTATIC, programName, "execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V", false);
 
 		// exit from the main method
 		mv.visitInsn(RETURN);
@@ -127,7 +106,7 @@ public class CodeGenerator implements ASTVisitor {
 		mv.visitTypeInsn(NEW, "java/util/Scanner");
 		mv.visitInsn(DUP);
 		// retrieve the input stream from the local variables
-		pushInputStream();
+		mv.visitVarInsn(ALOAD, inputIndex);
 		mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
 		// store the created object as a local variable
 		scannerIndex = reserveLocal();
@@ -163,7 +142,7 @@ public class CodeGenerator implements ASTVisitor {
 		mv.visitMaxs(-1, -1);
 		mv.visitEnd();
 	}
-	
+
 	@Override
 	public void visitNum(NumExpr expr) {
 		mv.visitLdcInsn(expr.getValue());
@@ -215,7 +194,7 @@ public class CodeGenerator implements ASTVisitor {
 		mv.visitVarInsn(ISTORE, b);
 
 		// the MOD operation can be computed as: a % b = a - b*(a/b)
-		// push a onto the stack
+		// in postfix it becomes a b a b / * -
 		mv.visitVarInsn(ILOAD, a);
 		mv.visitVarInsn(ILOAD, b);
 		mv.visitVarInsn(ILOAD, a);
@@ -224,7 +203,7 @@ public class CodeGenerator implements ASTVisitor {
 		mv.visitInsn(IMUL);
 		mv.visitInsn(ISUB);
 
-		// destroy the used local variables
+		// destroy the temporary local variables
 		destroyLocal();
 		destroyLocal();
 	}
@@ -238,12 +217,12 @@ public class CodeGenerator implements ASTVisitor {
 	@Override
 	public void visitWrite(WriteStatement writeStmt) {
 		// retrieve the output stream from the local variables
-		pushOutputStream();
+		mv.visitVarInsn(ALOAD, outputIndex);
 
 		// compile the expression to be printed and push it onto the stack
 		writeStmt.getExpr().accept(this);
 
-		// invoke Integer.toString()
+		// invoke Integer.toString(expr)
 		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "toString",
 				"(I)Ljava/lang/String;", false);
 
@@ -255,7 +234,7 @@ public class CodeGenerator implements ASTVisitor {
 	@Override
 	public void visitWriteMessage(WriteMessageStatement writeMsgStmt) {
 		// retrieve the output stream from the local variables
-		pushOutputStream();
+		mv.visitVarInsn(ALOAD, outputIndex);
 
 		// push the string to be printed
 		mv.visitLdcInsn(writeMsgStmt.getMessage());
@@ -267,7 +246,7 @@ public class CodeGenerator implements ASTVisitor {
 	@Override
 	public void visitRead(ReadStatement readStmt) {
 		// push onto the stack the Scanner object stored as local variable
-		pushScanner();
+		mv.visitVarInsn(ALOAD, scannerIndex);
 		// call nextInt() on the created object
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
 		// put the read value in the specified variable
@@ -295,7 +274,7 @@ public class CodeGenerator implements ASTVisitor {
 
 	@Override
 	public void visitIf(IfStatement ifStmt) {
-		// compute (cond.left - cond.right) onto the stack
+		// push (cond.left - cond.right) onto the stack
 		Condition cond = ifStmt.getCondition();
 		cond.getLeft().accept(this);
 		cond.getRight().accept(this);
@@ -442,17 +421,5 @@ public class CodeGenerator implements ASTVisitor {
 			case LT: return IFGE;
 			default: throw new IllegalStateException("Invalid condition given: " + type);
 		}
-	}
-
-	private void pushOutputStream() {
-		mv.visitVarInsn(ALOAD, outputIndex);
-	}
-
-	private void pushInputStream() {
-		mv.visitVarInsn(ALOAD, inputIndex);
-	}
-
-	private void pushScanner() {
-		mv.visitVarInsn(ALOAD, scannerIndex);
 	}
 }

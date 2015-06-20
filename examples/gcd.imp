@@ -1,0 +1,22 @@
+var a, b, ia, ib;
+
+// ask a
+writemsg "a? ";
+read a;
+ia = a;
+
+// ask b
+writemsg "b? ";
+read b;
+ib = b;
+
+// compute GCD(a,b)
+while (b != 0) {
+  var r;
+  r = a % b;
+  a = b;
+  b = r;
+}
+
+writemsg "GCD("; write ia; writemsg ","; write ib; writemsg ") = "; write a;
+writeln;
