@@ -65,9 +65,9 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	 * Conditional operators
 	 */
 
-	"<" {return sf.newSymbol("LT", ParserSym.LT);}
+	"<"  {return sf.newSymbol("LT", ParserSym.LT);}
 	"<=" {return sf.newSymbol("LE", ParserSym.LE);}
-	">" {return sf.newSymbol("GT", ParserSym.GT);}
+	">"  {return sf.newSymbol("GT", ParserSym.GT);}
 	">=" {return sf.newSymbol("GE", ParserSym.GE);}
 	"==" {return sf.newSymbol("EQ", ParserSym.EQ);}
 	"!=" {return sf.newSymbol("NE", ParserSym.NE);}
@@ -90,14 +90,17 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	/*
 	 * Reserved keywords.
 	 */
-	"var"  {return sf.newSymbol("VAR", ParserSym.VAR);}
-	"if"   {return sf.newSymbol("IF", ParserSym.IF);}
-	"else" {return sf.newSymbol("ELSE", ParserSym.ELSE);}
-	"while" {return sf.newSymbol("WHILE", ParserSym.WHILE);}
-	"write" {return sf.newSymbol("WRITE", ParserSym.WRITE);}
-	"writemsg" {return sf.newSymbol("WRITEMSG", ParserSym.WRITEMSG);}
-	"writeln" {return sf.newSymbol("WRITELN", ParserSym.WRITELN);}
-	"read" {return sf.newSymbol("READ", ParserSym.READ);}
+
+	"var"		{return sf.newSymbol("VAR", ParserSym.VAR);}
+	"if"		{return sf.newSymbol("IF", ParserSym.IF);}
+	"else"		{return sf.newSymbol("ELSE", ParserSym.ELSE);}
+	"while"		{return sf.newSymbol("WHILE", ParserSym.WHILE);}
+	"do"		{return sf.newSymbol("DO", ParserSym.DO);}
+	"for"		{return sf.newSymbol("FOR", ParserSym.FOR);}
+	"write"		{return sf.newSymbol("WRITE", ParserSym.WRITE);}
+	"writemsg"	{return sf.newSymbol("WRITEMSG", ParserSym.WRITEMSG);}
+	"writeln"	{return sf.newSymbol("WRITELN", ParserSym.WRITELN);}
+	"read"		{return sf.newSymbol("READ", ParserSym.READ);}
 
 	/*
 	 * Numbers

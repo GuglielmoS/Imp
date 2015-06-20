@@ -54,7 +54,7 @@ terminal ASSIGNTO;
 // parenthesis
 terminal OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY_BRACE, ClOSE_CURLY_BRACE;
 // reserved keywords
-terminal VAR, IF, ELSE, WHILE, WRITE, WRITEMSG, WRITELN, READ;
+terminal VAR, IF, ELSE, WHILE, DO, FOR, WRITE, WRITEMSG, WRITELN, READ;
 // atomitc values
 terminal Integer NUM;
 terminal String IDENT;
@@ -73,6 +73,8 @@ non terminal Statement assignment;
 non terminal Statement ifStmt;
 non terminal Condition condition;
 non terminal Statement whileStmt;
+non terminal Statement doWhileStmt;
+non terminal Statement forStmt;
 non terminal Statement writeStmt;
 non terminal Statement readStmt;
 non terminal String string;
@@ -132,6 +134,10 @@ stmt ::= assignment:assignStmt
 	   	 {: RESULT = ifStatement; :}
 	   | whileStmt:whileStatement
 	   	 {: RESULT = whileStatement; :}
+	   | doWhileStmt:doWhileStatement
+	     {: RESULT = doWhileStatement; :}
+	   | forStmt:forStmt
+	     {: RESULT = forStmt; :}
 	   | writeStmt:wstmt
 	   	 {: RESULT = wstmt; :}
 	   | readStmt:rstmt
@@ -154,7 +160,15 @@ ifStmt ::= IF OPEN_PAREN condition:cond CLOSE_PAREN stmt:consequent ELSE stmt:al
 
 whileStmt ::= WHILE OPEN_PAREN condition:cond CLOSE_PAREN stmt:body
 			  {: RESULT = StatementFactory.whileStmt(cond, body); :}
-			; 
+			;
+
+doWhileStmt ::= DO stmt:body WHILE OPEN_PAREN condition:cond CLOSE_PAREN
+			  	{: RESULT = StatementFactory.doWhileStmt(body, cond); :}
+			  ;
+
+forStmt ::= FOR OPEN_PAREN IDENT:ident ASSIGNTO expr:start COMMA expr:end CLOSE_PAREN stmt:body
+		  	{: RESULT = StatementFactory.forStmt(body, getVariable(ident), start, end); :}
+		  ;
 
 condition ::= expr:e1 LT expr:e2
 			  {: RESULT = ConditionFactory.lt(e1, e2); :}

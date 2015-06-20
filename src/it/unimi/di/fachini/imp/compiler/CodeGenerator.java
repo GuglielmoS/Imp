@@ -41,7 +41,9 @@ import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionType;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadStatement;
@@ -333,6 +335,94 @@ public class CodeGenerator implements ASTVisitor {
 
 		// loop's end
 		mv.visitLabel(end);
+	}
+
+	@Override
+	public void visitDoWhile(DoWhileStatement doWhileStmt) {
+		// loop's start
+		Label loop = new Label();
+		mv.visitLabel(loop);
+
+		// body
+		doWhileStmt.getBody().accept(this);
+
+		// compute (cond.left - cond.right) onto the stack
+		Condition cond = doWhileStmt.getCondition();
+		cond.getLeft().accept(this);
+		cond.getRight().accept(this);
+		mv.visitInsn(ISUB);
+
+		// evaluate the result accordingly to the condition type
+		Label end = new Label();
+		mv.visitJumpInsn(getConditionOpcode(cond.getType()), end);
+		mv.visitJumpInsn(GOTO, loop);
+
+		// loop's end
+		mv.visitLabel(end);
+	}
+
+	public void visitFor(ForStatement forStmt) {
+		// create the labels for compiling the loop
+		Label loop = new Label();
+		Label checkLower = new Label();
+		Label body = new Label();
+		Label end = new Label();
+
+		// initialize the iteration variable
+		int iterIndex = forStmt.getIterVar().getIndex();
+		forStmt.getStart().accept(this);
+		mv.visitVarInsn(ISTORE, iterIndex);
+
+		// reserve a local variable for the end value
+		int endIndex = reserveLocal();
+		forStmt.getEnd().accept(this);
+		mv.visitVarInsn(ISTORE, endIndex);
+
+		// reserve a local variable for the step value
+		int stepIndex = reserveLocal();
+		forStmt.getStep().accept(this);
+		mv.visitVarInsn(ISTORE, stepIndex);
+
+		// loop's start and end
+		mv.visitLabel(loop);
+
+		// check the condition accordingly to the step value (positive/negative)
+		mv.visitVarInsn(ILOAD, stepIndex);
+		mv.visitJumpInsn(IFLT, checkLower);
+
+		// exit if the iteration variable is greater than end
+		mv.visitVarInsn(ILOAD, iterIndex);
+		mv.visitVarInsn(ILOAD, endIndex);
+		mv.visitInsn(ISUB);
+		mv.visitJumpInsn(IFGT, end);
+		mv.visitJumpInsn(GOTO, body);
+
+		// exit if the iteration variable is lower than end
+		mv.visitLabel(checkLower);
+		mv.visitVarInsn(ILOAD, iterIndex);
+		mv.visitVarInsn(ILOAD, endIndex);
+		mv.visitInsn(ISUB);
+		mv.visitJumpInsn(IFLT, end);
+
+		// loop's body
+		mv.visitLabel(body);
+		forStmt.getBody().accept(this);
+
+		// step increment/decrement
+		mv.visitVarInsn(ILOAD, iterIndex);
+		mv.visitVarInsn(ILOAD, stepIndex);
+		mv.visitInsn(IADD);
+		mv.visitVarInsn(ISTORE, iterIndex);
+
+		// jump to the start
+		mv.visitJumpInsn(GOTO, loop);
+
+		// loop's end
+		mv.visitLabel(end);
+
+		// destroy the local variable used for the step and the end variable
+		destroyLocal();
+		destroyLocal();
 	}
 
 	private int getConditionOpcode(ConditionType type) {

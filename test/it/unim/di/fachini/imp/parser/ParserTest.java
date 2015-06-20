@@ -6,12 +6,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.Program;
+import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
@@ -249,6 +252,48 @@ public class ParserTest {
 			WhileStatement whileStmt = (WhileStatement)statements.get(0);
 			assertTrue(whileStmt.getCondition() instanceof Condition);
 			assertTrue(whileStmt.getBody() instanceof EmptyStatement);
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testDoWhileWithEmptyBody() {
+		StringReader buf = new StringReader("do ; while (1==1)");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof DoWhileStatement);
+			DoWhileStatement doWhileStmt = (DoWhileStatement)statements.get(0);
+			assertTrue(doWhileStmt.getCondition() instanceof Condition);
+			assertTrue(doWhileStmt.getBody() instanceof EmptyStatement);
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testForWithEmptyBody() {
+		StringReader buf = new StringReader("var i;for(i=0,10);");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			List<Statement> statements = program.getStatements();
+			assertEquals(1, statements.size());
+			assertTrue(statements.get(0) instanceof ForStatement);
+			ForStatement forStmt = (ForStatement)statements.get(0);
+			assertTrue(forStmt.getStart() instanceof NumExpr);
+			assertTrue(forStmt.getEnd() instanceof NumExpr);
+			assertTrue(forStmt.getStep() instanceof NumExpr);
+			assertTrue(forStmt.getBody() instanceof EmptyStatement);
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}

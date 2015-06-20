@@ -10,23 +10,24 @@ public class ParserSym {
   /* terminals */
   public static final int UNARY = 9;
   public static final int MOD = 8;
-  public static final int READ = 28;
+  public static final int READ = 30;
   public static final int OPEN_PAREN = 17;
   public static final int LT = 12;
   public static final int NE = 11;
-  public static final int IDENT = 30;
+  public static final int IDENT = 32;
   public static final int ELSE = 23;
   public static final int PLUS = 4;
   public static final int WHILE = 24;
-  public static final int WRITELN = 27;
+  public static final int WRITELN = 29;
   public static final int SEMI_COLON = 3;
   public static final int IF = 22;
   public static final int ClOSE_CURLY_BRACE = 20;
   public static final int GT = 13;
-  public static final int WRITE = 25;
+  public static final int WRITE = 27;
   public static final int LE = 14;
-  public static final int NUM = 29;
-  public static final int STRING = 31;
+  public static final int NUM = 31;
+  public static final int DO = 25;
+  public static final int STRING = 33;
   public static final int OPEN_CURLY_BRACE = 19;
   public static final int COMMA = 2;
   public static final int EOF = 0;
@@ -37,7 +38,8 @@ public class ParserSym {
   public static final int error = 1;
   public static final int EQ = 10;
   public static final int ASSIGNTO = 16;
-  public static final int WRITEMSG = 26;
+  public static final int FOR = 26;
+  public static final int WRITEMSG = 28;
   public static final int MUL = 6;
   public static final int VAR = 21;
   public static final String[] terminalNames = new String[] {
@@ -66,6 +68,8 @@ public class ParserSym {
   "IF",
   "ELSE",
   "WHILE",
+  "DO",
+  "FOR",
   "WRITE",
   "WRITEMSG",
   "WRITELN",

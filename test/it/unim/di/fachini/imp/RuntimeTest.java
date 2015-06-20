@@ -121,6 +121,29 @@ public class RuntimeTest {
 	}
 
 	/*
+	 * DO WHILE Statement
+	 */
+
+	@Test
+	public void testDoWhileAsWhile() throws Exception {
+		assertEquals("0123456789", Util.runProgram("var i;i=0;do{write i;i=i+1;}while(i<10)", ""));
+	}
+
+	@Test
+	public void testDoWhile() throws Exception {
+		assertEquals("0", Util.runProgram("var i;i=0;do{write i;i=i+1;}while(i<0)", ""));
+	}
+
+	/*
+	 * FOR Statement
+	 */
+
+	@Test
+	public void testForWithoutStep() throws Exception {
+		assertEquals("012345678910", Util.runProgram("var i;for(i=0,10)write i;", ""));
+	}
+
+	/*
 	 * BLOCK statement
 	 */
 

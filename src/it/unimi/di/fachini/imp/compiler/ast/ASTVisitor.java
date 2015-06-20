@@ -9,7 +9,9 @@ import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadStatement;
@@ -21,7 +23,7 @@ public interface ASTVisitor {
 	void visitNum(NumExpr expr);
 	void visitVar(VarExpr expr);
 
-	// arith
+	// arithmetic
 	void visitAdd(AddExpr expr);
 	void visitSub(SubExpr expr);
 	void visitMul(MulExpr expr);
@@ -39,4 +41,6 @@ public interface ASTVisitor {
 	void visitEmpty(EmptyStatement empty);
 	void visitIf(IfStatement ifStmt);
 	void visitWhile(WhileStatement whileStmt);
+	void visitDoWhile(DoWhileStatement whileStmt);
+	void visitFor(ForStatement forStmt);
 }
