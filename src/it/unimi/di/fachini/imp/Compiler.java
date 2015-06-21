@@ -1,8 +1,10 @@
 package it.unimi.di.fachini.imp;
 
-import it.unimi.di.fachini.imp.compiler.CodeGenerator;
 import it.unimi.di.fachini.imp.compiler.Program;
+import it.unimi.di.fachini.imp.compiler.bytecode.CodeGenerator;
 import it.unimi.di.fachini.imp.compiler.error.CompilerError;
+import it.unimi.di.fachini.imp.compiler.verification.TypeChecker;
+import it.unimi.di.fachini.imp.compiler.verification.TypeCheckerVisitor;
 import it.unimi.di.fachini.imp.parser.Parser;
 import it.unimi.di.fachini.imp.scanner.Scanner;
 
@@ -32,6 +34,9 @@ public class Compiler {
 		} catch (Exception e) {
 			throw new CompilerError("Parsing error: " + e.getMessage());
 		}
+
+		// launch the type checker to detect invalid operations
+		new TypeChecker(program).check();
 
 		// compile the input code
 		bytecode = new CodeGenerator(programName).compile(program);

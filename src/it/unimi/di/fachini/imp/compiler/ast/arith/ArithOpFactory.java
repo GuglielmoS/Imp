@@ -24,7 +24,7 @@ public class ArithOpFactory {
 	}
 
 	public static Expr unaryPlus(Expr target) {
-		return target;
+		return new UnaryPlusExpr(target);
 	}
 
 	public static Expr unaryMinus(Expr target) {

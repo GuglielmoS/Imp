@@ -1,8 +1,10 @@
-package it.unimi.di.fachini.imp.compiler;
+package it.unimi.di.fachini.imp.compiler.bytecode;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
+import it.unimi.di.fachini.imp.compiler.Descriptor;
+import it.unimi.di.fachini.imp.compiler.Program;
 import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.arith.AddExpr;
@@ -11,6 +13,7 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.ModExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
+import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryPlusExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
 import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayLength;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NewArray;
@@ -236,6 +239,11 @@ public class CodeGenerator implements AstVisitor {
 		// destroy the temporary local variables
 		destroyLocal();
 		destroyLocal();
+	}
+
+	@Override
+	public void visitUnaryPlus(UnaryPlusExpr expr) {
+		expr.getTarget().accept(this);
 	}
 
 	@Override
