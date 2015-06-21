@@ -4,7 +4,6 @@ import it.unimi.di.fachini.imp.compiler.Program;
 import it.unimi.di.fachini.imp.compiler.bytecode.CodeGenerator;
 import it.unimi.di.fachini.imp.compiler.error.CompilerError;
 import it.unimi.di.fachini.imp.compiler.verification.TypeChecker;
-import it.unimi.di.fachini.imp.compiler.verification.TypeCheckerVisitor;
 import it.unimi.di.fachini.imp.parser.Parser;
 import it.unimi.di.fachini.imp.scanner.Scanner;
 

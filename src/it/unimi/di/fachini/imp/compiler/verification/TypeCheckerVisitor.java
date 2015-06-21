@@ -253,7 +253,7 @@ public class TypeCheckerVisitor implements AstVisitor {
 		expected(STATEMENT);
 		whileStmt.getBody().accept(this);
 	}
-
+ 
 	@Override
 	public void visitFor(ForStatement forStmt) {
 		found(STATEMENT);

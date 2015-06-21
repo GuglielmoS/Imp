@@ -1,4 +1,4 @@
-package it.unim.di.fachini.imp;
+package it.unim.di.fachini.imp.runtime;
 
 import static org.junit.Assert.assertEquals;
 
