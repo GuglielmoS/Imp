@@ -131,6 +131,20 @@ public class ScannerTest {
 	}
 
 	@Test
+	public void testArrayOperators() {
+		StringReader buf = new StringReader("#");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
+			assertEquals(ParserSym.SHARP, scanner.next_token().sym);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
 	public void testConditionalOperators() {
 		StringReader buf = new StringReader("< <= > >= == !=");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();

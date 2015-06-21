@@ -24,4 +24,8 @@ public class AtomFactory {
 	public static Variable arrayElem(Descriptor arrayRef, Expr index) {
 		return new ArrayElem(arrayRef, index);
 	}
+
+	public static Expr arrayLength(Descriptor ident) {
+		return new ArrayLength(ident);
+	}
 }

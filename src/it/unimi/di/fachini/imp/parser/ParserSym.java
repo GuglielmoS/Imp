@@ -8,45 +8,46 @@ package it.unimi.di.fachini.imp.parser;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int ASSIGNTO = 16;
-  public static final int OPEN_PAREN = 17;
-  public static final int GE = 15;
-  public static final int FOR = 31;
+  public static final int ASSIGNTO = 17;
+  public static final int OPEN_PAREN = 18;
+  public static final int GE = 16;
+  public static final int FOR = 32;
   public static final int MINUS = 5;
-  public static final int REF = 24;
-  public static final int WRITE = 32;
-  public static final int WRITEMSG = 33;
-  public static final int CLOSE_SQUARE_BRACKET = 22;
-  public static final int LT = 12;
-  public static final int CLOSE_PAREN = 18;
+  public static final int REF = 25;
+  public static final int WRITE = 33;
+  public static final int WRITEMSG = 34;
+  public static final int CLOSE_SQUARE_BRACKET = 23;
+  public static final int LT = 13;
+  public static final int CLOSE_PAREN = 19;
   public static final int COMMA = 2;
   public static final int DIV = 7;
-  public static final int NUM = 36;
+  public static final int NUM = 37;
   public static final int PLUS = 4;
-  public static final int IF = 27;
-  public static final int WRITELN = 34;
-  public static final int LE = 14;
+  public static final int WRITELN = 35;
+  public static final int IF = 28;
+  public static final int LE = 15;
   public static final int EOF = 0;
-  public static final int ClOSE_CURLY_BRACE = 20;
-  public static final int NEW = 25;
+  public static final int ClOSE_CURLY_BRACE = 21;
+  public static final int NEW = 26;
   public static final int error = 1;
   public static final int UNARY = 9;
   public static final int MUL = 6;
-  public static final int OPEN_SQUARE_BRACKET = 21;
-  public static final int OPEN_CURLY_BRACE = 19;
+  public static final int OPEN_SQUARE_BRACKET = 22;
+  public static final int OPEN_CURLY_BRACE = 20;
   public static final int SEMI_COLON = 3;
-  public static final int NULL = 26;
+  public static final int NULL = 27;
   public static final int MOD = 8;
-  public static final int IDENT = 37;
-  public static final int EQ = 10;
-  public static final int ELSE = 28;
-  public static final int READ = 35;
-  public static final int WHILE = 29;
-  public static final int NE = 11;
-  public static final int STRING = 38;
-  public static final int GT = 13;
-  public static final int VAR = 23;
-  public static final int DO = 30;
+  public static final int IDENT = 38;
+  public static final int EQ = 11;
+  public static final int SHARP = 10;
+  public static final int ELSE = 29;
+  public static final int READ = 36;
+  public static final int WHILE = 30;
+  public static final int NE = 12;
+  public static final int STRING = 39;
+  public static final int GT = 14;
+  public static final int VAR = 24;
+  public static final int DO = 31;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -58,6 +59,7 @@ public class ParserSym {
   "DIV",
   "MOD",
   "UNARY",
+  "SHARP",
   "EQ",
   "NE",
   "LT",

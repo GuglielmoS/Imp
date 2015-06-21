@@ -12,6 +12,7 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
+import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayLength;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NewArray;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NullRef;
 import it.unimi.di.fachini.imp.compiler.ast.atom.Num;
@@ -174,6 +175,12 @@ public class CodeGenerator implements AstVisitor {
 		mv.visitVarInsn(ALOAD, expr.getArrayRef().getIndex());
 		expr.getIndex().accept(this);
 		mv.visitInsn(IALOAD);
+	}
+
+	@Override
+	public void visitArrayLength(ArrayLength expr) {
+		mv.visitVarInsn(ALOAD, expr.getDescriptor().getIndex());
+		mv.visitInsn(ARRAYLENGTH);
 	}
 
 	@Override

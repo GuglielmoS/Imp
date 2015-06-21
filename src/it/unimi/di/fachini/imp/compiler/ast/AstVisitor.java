@@ -7,6 +7,7 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
 import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
+import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayLength;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NewArray;
 import it.unimi.di.fachini.imp.compiler.ast.atom.NullRef;
 import it.unimi.di.fachini.imp.compiler.ast.atom.Num;
@@ -31,6 +32,7 @@ public interface AstVisitor {
 	void visitNull(NullRef expr);
 	void visitNewArray(NewArray expr);
 	void visitArrayElem(ArrayElem expr);
+	void visitArrayLength(ArrayLength expr);
 
 	// arithmetic
 	void visitAdd(AddExpr expr);

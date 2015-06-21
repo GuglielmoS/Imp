@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RuntimeTest {
@@ -192,5 +193,29 @@ public class RuntimeTest {
 		assertEquals("0123456789",
 				Util.runProgram("ref a; a = new 10; var i; for (i=0,9){read a[i];write a[i];}",
 								"0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n"));
+	}
+
+	@Test
+	public void testArrayLength() throws Exception {
+		assertEquals("1",
+				Util.runProgram("ref a; a = new 1; write #a;", ""));
+		assertEquals("3",
+				Util.runProgram("ref a; a = new 3; write #a;", ""));
+		assertEquals("13",
+				Util.runProgram("ref a, b; a = new 3; b = new 10; write #a+#b;", ""));
+	}
+
+	@Test
+	@Ignore
+	public void testArrayEquality() throws Exception {
+		assertEquals("OK",
+				Util.runProgram("ref a, b; a = new 3; b = new 3; if (a==b) writemsg \"KO\"; else writemsg \"OK\";", ""));
+
+		assertEquals("OK",
+				Util.runProgram("ref a, b; a = new 3; b = a; if (a==b) writemsg \"OK\"; else writemsg \"KO\";", ""));
+
+		assertEquals("OK",
+				Util.runProgram("ref a, b; a = new 3; b = new 3; var i; for (i=0,2){a[i]=i;b[i]=i;} if (a==b) writemsg \"KO\"; else writemsg \"OK\";", ""));
+
 	}
 }

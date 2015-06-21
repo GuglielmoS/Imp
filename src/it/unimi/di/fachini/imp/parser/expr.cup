@@ -47,6 +47,8 @@ action code {:
 terminal COMMA, SEMI_COLON;
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, UNARY;
+// array operators
+terminal SHARP;
 // conditionals
 terminal EQ, NE, LT, GT, LE, GE;
 // assignments
@@ -85,6 +87,7 @@ non terminal String string;
 non terminal Statement block;
 non terminal Expr expr;
 non terminal Variable variable;
+
 /*
  * Precedence and associativity
  */
@@ -219,6 +222,8 @@ expr ::= NUM:n
 	   	 {: RESULT = var; :}
 	   | NULL:nullRef
 	   	 {: RESULT = AtomFactory.nullRef(); :}
+	   | SHARP IDENT:ident
+	   	 {: RESULT = AtomFactory.arrayLength(getVariable(ident)); :}
 	   | expr:e1 PLUS expr:e2
 	 	 {: RESULT = ArithOpFactory.add(e1, e2); :}
 	   | expr:e1 MINUS expr:e2

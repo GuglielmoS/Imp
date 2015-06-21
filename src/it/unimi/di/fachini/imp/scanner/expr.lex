@@ -62,6 +62,11 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"+" {return sf.newSymbol("PLUS", ParserSym.PLUS);}
 
 	/*
+	 * Array operators
+	 */
+	"#" {return sf.newSymbol("SHARP", ParserSym.SHARP);}
+
+	/*
 	 * Conditional operators
 	 */
 
