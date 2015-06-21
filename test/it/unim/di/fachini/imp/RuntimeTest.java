@@ -170,4 +170,27 @@ public class RuntimeTest {
 		assertEquals("123",
 				Util.runProgram("var x;x=1;{var y;y=2;{var z;z=3;}}write x; write y; write z;", ""));
 	}
+	
+	/*
+	 * ARRAYS
+	 */
+
+	@Test
+	public void testNull() throws Exception {
+		assertEquals("",
+				Util.runProgram("ref a; a = null;", ""));
+	}
+
+	@Test
+	public void testSimpleArray() throws Exception {
+		assertEquals("0123456789",
+				Util.runProgram("ref a; a = new 10; var i; for (i=0,9){a[i]=i;write a[i];}", ""));
+	}
+
+	@Test
+	public void testSimpleArrayWithRead() throws Exception {
+		assertEquals("0123456789",
+				Util.runProgram("ref a; a = new 10; var i; for (i=0,9){read a[i];write a[i];}",
+								"0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n"));
+	}
 }

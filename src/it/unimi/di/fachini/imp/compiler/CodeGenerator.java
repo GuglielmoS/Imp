@@ -3,7 +3,7 @@ package it.unimi.di.fachini.imp.compiler;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
-import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
+import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.arith.AddExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.DivExpr;
@@ -11,18 +11,23 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.ModExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
-import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
-import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
+import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
+import it.unimi.di.fachini.imp.compiler.ast.atom.NewArray;
+import it.unimi.di.fachini.imp.compiler.ast.atom.NullRef;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Num;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Var;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionType;
-import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.AssignArrayStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
-import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadArrayElemStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteMessageStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
 import it.unimi.di.fachini.imp.compiler.declaration.Declaration;
@@ -31,7 +36,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-public class CodeGenerator implements ASTVisitor {
+public class CodeGenerator implements AstVisitor {
 	private MethodVisitor mv;
 	private int nextLocalVar;
 	private int scannerIndex;
@@ -144,13 +149,31 @@ public class CodeGenerator implements ASTVisitor {
 	}
 
 	@Override
-	public void visitNum(NumExpr expr) {
+	public void visitNum(Num expr) {
 		mv.visitLdcInsn(expr.getValue());
 	}
 
 	@Override
-	public void visitVar(VarExpr expr) {
+	public void visitVar(Var expr) {
 		mv.visitVarInsn(ILOAD, expr.getDescriptor().getIndex());
+	}
+
+	@Override
+	public void visitNull(NullRef expr) {
+		mv.visitInsn(ACONST_NULL);
+	}
+
+	@Override
+	public void visitNewArray(NewArray expr) {
+		expr.getSize().accept(this);
+		mv.visitIntInsn(NEWARRAY, T_INT);
+	}
+
+	@Override
+	public void visitArrayElem(ArrayElem expr) {
+		mv.visitVarInsn(ALOAD, expr.getArrayRef().getIndex());
+		expr.getIndex().accept(this);
+		mv.visitInsn(IALOAD);
 	}
 
 	@Override
@@ -244,19 +267,44 @@ public class CodeGenerator implements ASTVisitor {
 	}
 
 	@Override
-	public void visitRead(ReadStatement readStmt) {
+	public void visitReadVar(ReadVarStatement readStmt) {
 		// push onto the stack the Scanner object stored as local variable
 		mv.visitVarInsn(ALOAD, scannerIndex);
 		// call nextInt() on the created object
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
 		// put the read value in the specified variable
-		mv.visitVarInsn(ISTORE, readStmt.getDestination().getIndex());
+		mv.visitVarInsn(ISTORE, readStmt.getTarget().getDescriptor().getIndex());
 	}
 
 	@Override
-	public void visitAssign(AssignStatement assign) {
+	public void visitReadArrayElem(ReadArrayElemStatement readStmt) {
+		// prepare the stack for the assignment (push the array and the index)
+		mv.visitVarInsn(ALOAD, readStmt.getTarget().getDescriptor().getIndex());
+		readStmt.getTarget().getIndex().accept(this);
+		// push onto the stack the Scanner object stored as local variable
+		mv.visitVarInsn(ALOAD, scannerIndex);
+		// call nextInt() on the created object
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
+		// put the read value in the specified array element
+		mv.visitInsn(IASTORE);
+	}
+
+	@Override
+	public void visitAssignVar(AssignVarStatement assign) {
 		assign.getValue().accept(this);
-		mv.visitVarInsn(ISTORE, assign.getTarget().getIndex());
+		Descriptor descriptor = assign.getTarget().getDescriptor();
+		if (descriptor.isRef())
+			mv.visitVarInsn(ASTORE, descriptor.getIndex());
+		else
+			mv.visitVarInsn(ISTORE, descriptor.getIndex());
+	}
+
+	@Override
+	public void visitAssignArray(AssignArrayStatement assign) {
+		mv.visitVarInsn(ALOAD, assign.getTarget().getDescriptor().getIndex());
+		assign.getTarget().getIndex().accept(this);
+		assign.getValue().accept(this);
+		mv.visitInsn(IASTORE);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
-import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
+import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 
@@ -39,7 +39,7 @@ public class IfStatement extends Statement {
 	}
 
 	@Override
-	public void accept(ASTVisitor v) {
+	public void accept(AstVisitor v) {
 		v.visitIf(this);
 	}
 }

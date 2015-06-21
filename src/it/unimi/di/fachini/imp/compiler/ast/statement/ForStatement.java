@@ -1,7 +1,7 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
-import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
+import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
@@ -41,7 +41,7 @@ public class ForStatement extends Statement {
 	}
 
 	@Override
-	public void accept(ASTVisitor v) {
+	public void accept(AstVisitor v) {
 		v.visitFor(this);
 	}
 }

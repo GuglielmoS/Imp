@@ -6,23 +6,31 @@ import it.unimi.di.fachini.imp.compiler.ast.arith.ModExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.MulExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.SubExpr;
 import it.unimi.di.fachini.imp.compiler.ast.arith.UnaryMinusExpr;
-import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
-import it.unimi.di.fachini.imp.compiler.ast.atom.VarExpr;
-import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
+import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
+import it.unimi.di.fachini.imp.compiler.ast.atom.NewArray;
+import it.unimi.di.fachini.imp.compiler.ast.atom.NullRef;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Num;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Var;
+import it.unimi.di.fachini.imp.compiler.ast.statement.AssignArrayStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
-import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadArrayElemStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.io.ReadVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteMessageStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
 
-public interface ASTVisitor {
+public interface AstVisitor {
 	// atom
-	void visitNum(NumExpr expr);
-	void visitVar(VarExpr expr);
+	void visitNum(Num expr);
+	void visitVar(Var expr);
+	void visitNull(NullRef expr);
+	void visitNewArray(NewArray expr);
+	void visitArrayElem(ArrayElem expr);
 
 	// arithmetic
 	void visitAdd(AddExpr expr);
@@ -35,10 +43,12 @@ public interface ASTVisitor {
 	// IO statements
 	void visitWrite(WriteStatement writeStmt);
 	void visitWriteMessage(WriteMessageStatement writeMsgStmt);
-	void visitRead(ReadStatement readStmt);
-	
+	void visitReadVar(ReadVarStatement readStmt);
+	void visitReadArrayElem(ReadArrayElemStatement readStmt);
+
 	// other statements
-	void visitAssign(AssignStatement assign);
+	void visitAssignVar(AssignVarStatement assign);
+	void visitAssignArray(AssignArrayStatement assign);
 	void visitBlock(BlockStatement block);
 	void visitEmpty(EmptyStatement empty);
 	void visitIf(IfStatement ifStmt);

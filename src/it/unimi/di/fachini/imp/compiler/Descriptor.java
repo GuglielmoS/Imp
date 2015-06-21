@@ -3,10 +3,12 @@ package it.unimi.di.fachini.imp.compiler;
 public class Descriptor {
 	private final String id;
 	private int index;
+	private boolean refFlag;
 
 	public Descriptor(String id) {
 		this.id = id;
 		this.index = -1;
+		this.refFlag = false;
 	}
 
 	public String getId() {
@@ -19,6 +21,14 @@ public class Descriptor {
 
 	public int getIndex() {
 		return index;
+	}
+
+	public boolean isRef() {
+		return refFlag;
+	}
+
+	public void setRef() {
+		this.refFlag = true;
 	}
 
 	@Override

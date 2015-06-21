@@ -1,8 +1,10 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement.io;
 
-import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
+import it.unimi.di.fachini.imp.compiler.ast.Variable;
+import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Var;
 
 public class IOStatementFactory {
 	public static Statement write(Expr expr) {
@@ -13,7 +15,11 @@ public class IOStatementFactory {
 		return new WriteMessageStatement(message);
 	}
 
-	public static Statement read(Descriptor destination) {
-		return new ReadStatement(destination);
+	public static Statement read(Variable var) {
+		if (var.isArrayRef()) {
+			return new ReadArrayElemStatement((ArrayElem)var);
+		} else {
+			return new ReadVarStatement((Var)var);
+		}
 	}
 }

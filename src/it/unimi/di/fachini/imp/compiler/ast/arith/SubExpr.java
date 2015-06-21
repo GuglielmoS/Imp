@@ -1,6 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.arith;
 
-import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
+import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class SubExpr extends Expr {
@@ -21,7 +21,7 @@ public class SubExpr extends Expr {
 	}
 
 	@Override
-	public void accept(ASTVisitor v) {
+	public void accept(AstVisitor v) {
 		v.visitSub(this);
 	}
 }

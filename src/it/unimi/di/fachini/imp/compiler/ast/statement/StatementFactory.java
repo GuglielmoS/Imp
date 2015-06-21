@@ -3,7 +3,10 @@ package it.unimi.di.fachini.imp.compiler.ast.statement;
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.ast.Expr;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
+import it.unimi.di.fachini.imp.compiler.ast.Variable;
+import it.unimi.di.fachini.imp.compiler.ast.atom.ArrayElem;
 import it.unimi.di.fachini.imp.compiler.ast.atom.AtomFactory;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Var;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
 
 import java.util.List;
@@ -13,8 +16,19 @@ public class StatementFactory {
 		return new EmptyStatement();
 	}
 
-	public static Statement assign(Descriptor ident, Expr value) {
-		return new AssignStatement(ident, value);
+	public static Statement assign(Variable var, Expr value) {
+		if (var.isArrayRef())
+			return assignArray((ArrayElem)var, value);
+		else
+			return assignVar((Var)var, value);
+	}
+
+	private static Statement assignVar(Var var, Expr value) {
+		return new AssignVarStatement(var, value);
+	}
+
+	private static Statement assignArray(ArrayElem var, Expr value) {
+		return new AssignArrayStatement(var, value);
 	}
 
 	public static Statement ifStmt(Condition condition, Statement consequent) {

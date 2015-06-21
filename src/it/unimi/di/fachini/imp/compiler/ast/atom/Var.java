@@ -1,13 +1,13 @@
 package it.unimi.di.fachini.imp.compiler.ast.atom;
 
 import it.unimi.di.fachini.imp.compiler.Descriptor;
-import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
-import it.unimi.di.fachini.imp.compiler.ast.Expr;
+import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
+import it.unimi.di.fachini.imp.compiler.ast.Variable;
 
-public class VarExpr extends Expr {
+public class Var extends Variable {
 	private Descriptor descriptor;
 
-	VarExpr(Descriptor descriptor) {
+	Var(Descriptor descriptor) {
 		this.descriptor = descriptor;
 	}
 
@@ -16,7 +16,7 @@ public class VarExpr extends Expr {
 	}
 
 	@Override
-	public void accept(ASTVisitor v) {
+	public void accept(AstVisitor v) {
 		v.visitVar(this);
 	}
 }

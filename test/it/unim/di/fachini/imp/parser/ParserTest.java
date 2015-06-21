@@ -7,9 +7,9 @@ import static org.junit.Assert.fail;
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.Program;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
-import it.unimi.di.fachini.imp.compiler.ast.atom.NumExpr;
+import it.unimi.di.fachini.imp.compiler.ast.atom.Num;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
-import it.unimi.di.fachini.imp.compiler.ast.statement.AssignStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
@@ -18,6 +18,7 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.io.WriteStatement;
 import it.unimi.di.fachini.imp.compiler.declaration.Declaration;
+import it.unimi.di.fachini.imp.compiler.declaration.ReferencesDeclaration;
 import it.unimi.di.fachini.imp.compiler.declaration.VariablesDeclaration;
 import it.unimi.di.fachini.imp.compiler.error.CompilerError;
 import it.unimi.di.fachini.imp.parser.Parser;
@@ -97,6 +98,28 @@ public class ParserTest {
 	}
 
 	@Test
+	public void testRefDeclaration() {
+		StringReader buf = new StringReader("ref a, b, c;");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+		Parser parser = new Parser(scanner, sf);
+
+		try {
+			Program program = (Program) parser.parse().value;
+			assertEquals(0, program.getStatements().size());
+			assertEquals(1, program.getDeclarations().size());
+			List<Declaration> declarations = program.getDeclarations();
+			assertTrue(declarations.get(0) instanceof ReferencesDeclaration);
+			List<Descriptor> ids = ((ReferencesDeclaration)declarations.get(0)).getDeclaredIdentifiers();
+			assertEquals("a", ids.get(0).getId());
+			assertEquals("b", ids.get(1).getId());
+			assertEquals("c", ids.get(2).getId());
+		} catch (Exception e) {
+			fail("Parser error: " + e.getMessage());
+		}
+	}
+
+	@Test
 	public void testSymbolTableWithSimpleVarDeclaration() {
 		StringReader buf = new StringReader("var a, b, c;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
@@ -154,11 +177,11 @@ public class ParserTest {
 			List<Descriptor> ids = ((VariablesDeclaration)declarations.get(0)).getDeclaredIdentifiers();
 			assertFalse(ids.isEmpty());
 			assertEquals("a", ids.get(0).getId());
-			assertTrue(statements.get(0) instanceof AssignStatement);
-			AssignStatement assignment = (AssignStatement)statements.get(0);
-			assertEquals("a", assignment.getTarget().getId());
-			assertTrue(assignment.getValue() instanceof NumExpr);
-			assertEquals(new Integer(10), ((NumExpr)assignment.getValue()).getValue());
+			assertTrue(statements.get(0) instanceof AssignVarStatement);
+			AssignVarStatement assignment = (AssignVarStatement)statements.get(0);
+			assertEquals("a", assignment.getTarget().getDescriptor().getId());
+			assertTrue(assignment.getValue() instanceof Num);
+			assertEquals(new Integer(10), ((Num)assignment.getValue()).getValue());
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
 		}
@@ -289,9 +312,9 @@ public class ParserTest {
 			assertEquals(1, statements.size());
 			assertTrue(statements.get(0) instanceof ForStatement);
 			ForStatement forStmt = (ForStatement)statements.get(0);
-			assertTrue(forStmt.getStart() instanceof NumExpr);
-			assertTrue(forStmt.getEnd() instanceof NumExpr);
-			assertTrue(forStmt.getStep() instanceof NumExpr);
+			assertTrue(forStmt.getStart() instanceof Num);
+			assertTrue(forStmt.getEnd() instanceof Num);
+			assertTrue(forStmt.getStep() instanceof Num);
 			assertTrue(forStmt.getBody() instanceof EmptyStatement);
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());
@@ -311,9 +334,9 @@ public class ParserTest {
 			assertEquals(1, statements.size());
 			assertTrue(statements.get(0) instanceof ForStatement);
 			ForStatement forStmt = (ForStatement)statements.get(0);
-			assertTrue(forStmt.getStart() instanceof NumExpr);
-			assertTrue(forStmt.getEnd() instanceof NumExpr);
-			assertTrue(forStmt.getStep() instanceof NumExpr);
+			assertTrue(forStmt.getStart() instanceof Num);
+			assertTrue(forStmt.getEnd() instanceof Num);
+			assertTrue(forStmt.getStep() instanceof Num);
 			assertTrue(forStmt.getBody() instanceof EmptyStatement);
 		} catch (Exception e) {
 			fail("Parser error: " + e.getMessage());

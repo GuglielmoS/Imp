@@ -52,9 +52,13 @@ terminal EQ, NE, LT, GT, LE, GE;
 // assignments
 terminal ASSIGNTO;
 // parenthesis
-terminal OPEN_PAREN, CLOSE_PAREN, OPEN_CURLY_BRACE, ClOSE_CURLY_BRACE;
+terminal OPEN_PAREN, CLOSE_PAREN;
+terminal OPEN_CURLY_BRACE, ClOSE_CURLY_BRACE;
+terminal OPEN_SQUARE_BRACKET, CLOSE_SQUARE_BRACKET;
 // reserved keywords
-terminal VAR, IF, ELSE, WHILE, DO, FOR, WRITE, WRITEMSG, WRITELN, READ;
+terminal VAR, REF, NEW, NULL;
+terminal IF, ELSE, WHILE, DO, FOR;
+terminal WRITE, WRITEMSG, WRITELN, READ;
 // atomitc values
 terminal Integer NUM;
 terminal String IDENT;
@@ -80,7 +84,7 @@ non terminal Statement readStmt;
 non terminal String string;
 non terminal Statement block;
 non terminal Expr expr;
-
+non terminal Variable variable;
 /*
  * Precedence and associativity
  */
@@ -113,6 +117,11 @@ seqDeclAndStmts ::= seqDeclAndStmts:stmts decl:d
 
 decl ::= VAR identSeq:identifiers SEMI_COLON
 		 {: RESULT = DeclarationFactory.var(identifiers); :}
+	   | REF identSeq:identifiers SEMI_COLON
+		 {: for (Descriptor id : identifiers)
+				id.setRef();
+			RESULT = DeclarationFactory.ref(identifiers);
+	     :}
 	   ;
 
 identSeq ::= IDENT:id
@@ -148,8 +157,8 @@ stmt ::= assignment:assignStmt
 	   	 {: RESULT = StatementFactory.nop(); :}
 	   ;
 
-assignment ::= IDENT:ident ASSIGNTO expr:e SEMI_COLON
-			   {: RESULT = StatementFactory.assign(getVariable(ident), e); :}
+assignment ::= variable:var ASSIGNTO expr:e SEMI_COLON
+			   {: RESULT = StatementFactory.assign(var, e); :}
 		 	 ;
 
 ifStmt ::= IF OPEN_PAREN condition:cond CLOSE_PAREN stmt:consequent ELSE stmt:alternative
@@ -196,8 +205,8 @@ writeStmt ::= WRITE expr:e SEMI_COLON
 
 string ::= STRING:s {: RESULT = s; :};
 
-readStmt ::= READ IDENT:ident SEMI_COLON
-			 {: RESULT = IOStatementFactory.read(getVariable(ident)); :}
+readStmt ::= READ variable:var SEMI_COLON
+			 {: RESULT = IOStatementFactory.read(var); :}
 		   ;
 
 block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
@@ -206,8 +215,10 @@ block ::= OPEN_CURLY_BRACE seqDeclAndStmts:statements ClOSE_CURLY_BRACE
 
 expr ::= NUM:n
 	   	 {: RESULT = AtomFactory.num(n); :}
-	   | IDENT:ident 
-	   	 {: RESULT = AtomFactory.var(getVariable(ident)); :}
+	   | variable:var
+	   	 {: RESULT = var; :}
+	   | NULL:nullRef
+	   	 {: RESULT = AtomFactory.nullRef(); :}
 	   | expr:e1 PLUS expr:e2
 	 	 {: RESULT = ArithOpFactory.add(e1, e2); :}
 	   | expr:e1 MINUS expr:e2
@@ -226,4 +237,12 @@ expr ::= NUM:n
 	     %prec UNARY
 	   | OPEN_PAREN expr:e CLOSE_PAREN
 	     {: RESULT = e; :}
+	   | NEW expr:e
+	     {: RESULT = AtomFactory.newArray(e); :}
 	   ;
+
+variable ::= IDENT:ident
+		   	 {: RESULT = AtomFactory.var(getVariable(ident)); :}
+		   | IDENT:ident OPEN_SQUARE_BRACKET expr:index CLOSE_SQUARE_BRACKET
+		   	 {: RESULT = AtomFactory.arrayElem(getVariable(ident), index); :}
+		   ;

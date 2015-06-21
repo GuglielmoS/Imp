@@ -1,6 +1,6 @@
 package it.unimi.di.fachini.imp.compiler.ast.statement.io;
 
-import it.unimi.di.fachini.imp.compiler.ast.ASTVisitor;
+import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
 import it.unimi.di.fachini.imp.compiler.ast.Statement;
 
 public class WriteMessageStatement extends Statement {
@@ -15,7 +15,7 @@ public class WriteMessageStatement extends Statement {
 	}
 
 	@Override
-	public void accept(ASTVisitor v) {
+	public void accept(AstVisitor v) {
 		v.visitWriteMessage(this);
 	}
 }

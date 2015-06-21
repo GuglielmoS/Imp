@@ -78,6 +78,8 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 
 	"(" {return sf.newSymbol("OPEN_PAREN", ParserSym.OPEN_PAREN);}
 	")" {return sf.newSymbol("CLOSE_PAREN", ParserSym.CLOSE_PAREN);}
+	"[" {return sf.newSymbol("OPEN_SQUARE_BRACKET", ParserSym.OPEN_SQUARE_BRACKET);}
+	"]" {return sf.newSymbol("CLOSE_SQUARE_BRACKET", ParserSym.CLOSE_SQUARE_BRACKET);}
 	"{" {return sf.newSymbol("OPEN_CURLY_BRACE", ParserSym.OPEN_CURLY_BRACE);}
 	"}" {return sf.newSymbol("ClOSE_CURLY_BRACE", ParserSym.ClOSE_CURLY_BRACE);}
 
@@ -92,6 +94,9 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	 */
 
 	"var"		{return sf.newSymbol("VAR", ParserSym.VAR);}
+	"ref"		{return sf.newSymbol("REF", ParserSym.REF);}
+	"new"		{return sf.newSymbol("NEW", ParserSym.NEW);}
+	"null"		{return sf.newSymbol("NULL", ParserSym.NULL);}
 	"if"		{return sf.newSymbol("IF", ParserSym.IF);}
 	"else"		{return sf.newSymbol("ELSE", ParserSym.ELSE);}
 	"while"		{return sf.newSymbol("WHILE", ParserSym.WHILE);}

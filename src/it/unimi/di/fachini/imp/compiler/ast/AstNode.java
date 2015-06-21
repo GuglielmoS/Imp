@@ -1,5 +1,5 @@
 package it.unimi.di.fachini.imp.compiler.ast;
 
-public interface AstNode {
-	void accept(ASTVisitor v);
+public abstract class AstNode {
+	public abstract void accept(AstVisitor v);
 }

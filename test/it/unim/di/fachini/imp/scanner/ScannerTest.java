@@ -182,12 +182,15 @@ public class ScannerTest {
 
 	@Test
 	public void testReservedKeywords() {
-		StringReader buf = new StringReader("var if else while do for write writemsg writeln read");
+		StringReader buf = new StringReader("var ref new null if else while do for write writemsg writeln read");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 
 		try {
 			assertEquals(ParserSym.VAR, scanner.next_token().sym);
+			assertEquals(ParserSym.REF, scanner.next_token().sym);
+			assertEquals(ParserSym.NEW, scanner.next_token().sym);
+			assertEquals(ParserSym.NULL, scanner.next_token().sym);
 			assertEquals(ParserSym.IF, scanner.next_token().sym);
 			assertEquals(ParserSym.ELSE, scanner.next_token().sym);
 			assertEquals(ParserSym.WHILE, scanner.next_token().sym);
