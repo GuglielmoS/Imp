@@ -1,0 +1,41 @@
+/* Eratostene's sieve */
+
+ref primes;
+var nMax, x;
+
+writemsg "Upper bound? ";
+read nMax;
+
+// init
+primes = new nMax + 2;
+x = 2;
+while (x <= nMax) {
+  primes[x] = 1;  // 1 is true
+  x = x + 1;
+}
+
+// the sieve
+var number, multiple;
+number = 2;
+while (number <= nMax) {
+  if (primes[number] == 1) {
+    multiple = number * 2;
+    while (multiple <= nMax) {   
+      primes[multiple] = 0; // assign false
+      multiple = multiple + number;
+    }
+  }
+  number = number + 1;
+}
+
+// result output
+writemsg "primes: ";
+number = 2;
+while (number <= nMax) {
+  if (primes[number] == 1) {
+    write number;
+    writemsg " ";
+  }
+  number = number + 1;
+}
+writeln;

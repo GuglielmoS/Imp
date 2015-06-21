@@ -1,0 +1,28 @@
+/* Sum an array of integers */
+
+writemsg "how many integers would you like to sum? ";
+var size;
+read size;
+ref numbers;
+numbers = new size;
+
+var i;
+i = 0;
+while (i < size) {
+  writemsg "VAL @ POSITION ";
+  write i + 1;
+  writemsg "? ";
+  read numbers[i];
+  i = i + 1;
+}
+var sum;
+sum = 0;
+i = 0;
+while (i < size) {
+  sum = sum + numbers[i];
+  i = i + 1;
+}
+
+writemsg "The sum is ";
+write sum;
+writeln;
