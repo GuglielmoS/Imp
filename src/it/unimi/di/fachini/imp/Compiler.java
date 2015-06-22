@@ -31,7 +31,7 @@ public class Compiler {
 		try {
 			program = (Program) parser.parse().value;
 		} catch (Exception e) {
-			throw new CompilerError("Parsing error: " + e.getMessage());
+			throw new CompilerError("parsing error caused by " + e.getMessage());
 		}
 
 		// launch the type checker to detect invalid operations
