@@ -1,10 +1,10 @@
 package it.unim.di.fachini.imp.runtime;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class RuntimeTest {
@@ -58,9 +58,13 @@ public class RuntimeTest {
 		assertEquals("28", Util.runProgram("write 7*4;", ""));
 	}
 
-	@Test(expected=InvocationTargetException.class)
+	@Test
 	public void testDivByZero() throws Exception {
-		assertEquals("", Util.runProgram("write 1/0;", ""));
+		try {
+			assertEquals("", Util.runProgram("write 1/0;", ""));
+		} catch (InvocationTargetException e) {
+			assertTrue(e.getTargetException() instanceof ArithmeticException);
+		}
 	}
 
 	@Test
@@ -212,16 +216,26 @@ public class RuntimeTest {
 	}
 
 	@Test
-	@Ignore
 	public void testArrayEquality() throws Exception {
 		assertEquals("OK",
-				Util.runProgram("ref a, b; a = new 3; b = new 3; if (a==b) writemsg \"KO\"; else writemsg \"OK\";", ""));
+				Util.runProgram("ref a, b; a = new 3; b = new 3; if (a==b) ; else writemsg \"OK\";", ""));
 
 		assertEquals("OK",
-				Util.runProgram("ref a, b; a = new 3; b = a; if (a==b) writemsg \"OK\"; else writemsg \"KO\";", ""));
+				Util.runProgram("ref a, b; a = new 3; b = a; if (a==b) writemsg \"OK\"; else ;", ""));
 
 		assertEquals("OK",
-				Util.runProgram("ref a, b; a = new 3; b = new 3; var i; for (i=0,2){a[i]=i;b[i]=i;} if (a==b) writemsg \"KO\"; else writemsg \"OK\";", ""));
+				Util.runProgram("ref a, b; a = new 3; b = new 3; var i; for (i=0,2){a[i]=i;b[i]=i;} if (a==b) ; else writemsg \"OK\";", ""));
+	}
 
+	@Test
+	public void testArrayInequality() throws Exception {
+		assertEquals("OK",
+				Util.runProgram("ref a, b; a = new 3; b = new 3; if (a!=b) writemsg \"OK\"; else ;", ""));
+
+		assertEquals("OK",
+				Util.runProgram("ref a, b; a = new 3; b = a; if (a!=b) ; else writemsg \"OK\";", ""));
+
+		assertEquals("OK",
+				Util.runProgram("ref a, b; a = new 3; b = new 3; var i; for (i=0,2){a[i]=i;b[i]=i;} if (a!=b) writemsg \"OK\"; else ;", ""));
 	}
 }

@@ -17,7 +17,7 @@ public class StatementFactory {
 	}
 
 	public static Statement assign(Variable var, Expr value) {
-		if (var.isArrayRef())
+		if (var.isArrayElem())
 			return assignArray((ArrayElem)var, value);
 		else
 			return assignVar((Var)var, value);

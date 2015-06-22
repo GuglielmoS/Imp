@@ -16,6 +16,7 @@ import it.unimi.di.fachini.imp.compiler.ast.atom.NullRef;
 import it.unimi.di.fachini.imp.compiler.ast.atom.Num;
 import it.unimi.di.fachini.imp.compiler.ast.atom.Var;
 import it.unimi.di.fachini.imp.compiler.ast.conditional.Condition;
+import it.unimi.di.fachini.imp.compiler.ast.conditional.ConditionType;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignArrayStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
@@ -210,11 +211,16 @@ public class TypeCheckerVisitor implements AstVisitor {
 	@Override
 	public void visitIf(IfStatement ifStmt) {
 		found(STATEMENT);
-		// check the condition
 		Condition condition = ifStmt.getCondition();
-		expected(NUM);
+		// get the expected type
+		ImpType expectedType = NUM;
+		if (condition.getType() == ConditionType.AEQ ||
+			condition.getType() == ConditionType.ANE)
+			expectedType = REF;
+		// check the condition
+		expected(expectedType);
 		condition.getLeft().accept(this);
-		expected(NUM);
+		expected(expectedType);
 		condition.getRight().accept(this);
 		// check the 'then' branch
 		expected(STATEMENT);
@@ -229,11 +235,16 @@ public class TypeCheckerVisitor implements AstVisitor {
 	@Override
 	public void visitWhile(WhileStatement whileStmt) {
 		found(STATEMENT);
-		// check the condition
 		Condition condition = whileStmt.getCondition();
-		expected(NUM);
+		// get the expected type
+		ImpType expectedType = NUM;
+		if (condition.getType() == ConditionType.AEQ ||
+			condition.getType() == ConditionType.ANE)
+			expectedType = REF;
+		// check the condition
+		expected(expectedType);
 		condition.getLeft().accept(this);
-		expected(NUM);
+		expected(expectedType);
 		condition.getRight().accept(this);
 		// check the body
 		expected(STATEMENT);
@@ -243,11 +254,16 @@ public class TypeCheckerVisitor implements AstVisitor {
 	@Override
 	public void visitDoWhile(DoWhileStatement whileStmt) {
 		found(STATEMENT);
-		// check the condition
 		Condition condition = whileStmt.getCondition();
-		expected(NUM);
+		// get the expected type
+		ImpType expectedType = NUM;
+		if (condition.getType() == ConditionType.AEQ ||
+			condition.getType() == ConditionType.ANE)
+			expectedType = REF;
+		// check the condition
+		expected(expectedType);
 		condition.getLeft().accept(this);
-		expected(NUM);
+		expected(expectedType);
 		condition.getRight().accept(this);
 		// check the body
 		expected(STATEMENT);

@@ -27,8 +27,7 @@ public class ArrayElem extends Variable {
 		return arrayRef;
 	}
 
-	@Override
-	public boolean isArrayRef() {
+	public boolean isArrayElem() {
 		return true;
 	}
 

@@ -4,11 +4,17 @@ import it.unimi.di.fachini.imp.compiler.ast.Expr;
 
 public class ConditionFactory {
 	public static Condition eq(Expr left, Expr right) {
-		return new Condition(ConditionType.EQ, left, right);
+		if (left.isRef())
+			return aeq(left, right);
+		else
+			return new Condition(ConditionType.EQ, left, right);
 	}
 
 	public static Condition ne(Expr left, Expr right) {
-		return new Condition(ConditionType.NE, left, right);
+		if (left.isRef())
+			return ane(left, right);
+		else
+			return new Condition(ConditionType.NE, left, right);
 	}
 
 	public static Condition aeq(Expr left, Expr right) {

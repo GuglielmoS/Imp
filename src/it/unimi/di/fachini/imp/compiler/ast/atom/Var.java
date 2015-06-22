@@ -16,6 +16,11 @@ public class Var extends Variable {
 	}
 
 	@Override
+	public boolean isRef() {
+		return descriptor.isRef();
+	}
+	
+	@Override
 	public void accept(AstVisitor v) {
 		v.visitVar(this);
 	}

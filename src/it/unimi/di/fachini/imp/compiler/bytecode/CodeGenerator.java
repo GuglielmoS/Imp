@@ -167,7 +167,10 @@ public class CodeGenerator implements AstVisitor {
 
 	@Override
 	public void visitVar(Var expr) {
-		mv.visitVarInsn(ILOAD, expr.getDescriptor().getIndex());
+		if (expr.isRef())
+			mv.visitVarInsn(ALOAD, expr.getDescriptor().getIndex());
+		else
+			mv.visitVarInsn(ILOAD, expr.getDescriptor().getIndex());
 	}
 
 	@Override
@@ -476,6 +479,8 @@ public class CodeGenerator implements AstVisitor {
 
 	private int getConditionOpcode(ConditionType type) {
 		switch (type) {
+			case AEQ: return IF_ACMPNE;
+			case ANE: return IF_ACMPEQ;
 			case EQ: return IF_ICMPNE;
 			case NE: return IF_ICMPEQ;
 			case GE: return IF_ICMPLT;

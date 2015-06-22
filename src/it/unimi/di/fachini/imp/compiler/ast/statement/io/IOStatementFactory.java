@@ -16,7 +16,7 @@ public class IOStatementFactory {
 	}
 
 	public static Statement read(Variable var) {
-		if (var.isArrayRef()) {
+		if (var.isArrayElem()) {
 			return new ReadArrayElemStatement((ArrayElem)var);
 		} else {
 			return new ReadVarStatement((Var)var);

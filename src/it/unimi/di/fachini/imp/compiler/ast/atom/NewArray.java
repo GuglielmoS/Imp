@@ -15,6 +15,11 @@ public class NewArray extends Expr {
 	}
 
 	@Override
+	public boolean isRef() {
+		return true;
+	}
+
+	@Override
 	public void accept(AstVisitor v) {
 		v.visitNewArray(this);
 	}

@@ -9,6 +9,11 @@ public class NullRef extends Expr {
 	}
 	
 	@Override
+	public boolean isRef() {
+		return true;
+	}
+	
+	@Override
 	public void accept(AstVisitor v) {
 		v.visitNull(this);
 	}

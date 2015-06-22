@@ -28,6 +28,16 @@ public class TypeCheckerTest {
 	}
 
 	@Test
+	public void arrayLengthOnIntegerVariablesMustFail() throws Exception {
+		try {
+			assertEquals("", Util.runProgram("var a; write #a;", ""));
+			fail();
+		} catch (TypeError te) {
+			// DO NOTHING
+		}
+	}
+
+	@Test
 	public void arithOperationsWithRefMustFail() throws Exception {
 		try {
 			assertEquals("", Util.runProgram("var a; ref b; a = a + b;", ""));
@@ -77,6 +87,34 @@ public class TypeCheckerTest {
 	public void assignVarToRefMustFail() throws Exception {
 		try {
 			assertEquals("", Util.runProgram("var a; ref b; b = a;", ""));
+			fail();
+		} catch (TypeError te) {
+			// DO NOTHING
+		}
+	}
+	
+	@Test
+	public void assignRefConditionalExceptEQandNEMustFail() throws Exception {
+		try {
+			assertEquals("", Util.runProgram("ref a, b; if (a<b);", ""));
+			fail();
+		} catch (TypeError te) {
+			// DO NOTHING
+		}
+		try {
+			assertEquals("", Util.runProgram("ref a, b; if (a>b);", ""));
+			fail();
+		} catch (TypeError te) {
+			// DO NOTHING
+		}
+		try {
+			assertEquals("", Util.runProgram("ref a, b; if (a<=b);", ""));
+			fail();
+		} catch (TypeError te) {
+			// DO NOTHING
+		}
+		try {
+			assertEquals("", Util.runProgram("ref a, b; if (a>=b);", ""));
 			fail();
 		} catch (TypeError te) {
 			// DO NOTHING
