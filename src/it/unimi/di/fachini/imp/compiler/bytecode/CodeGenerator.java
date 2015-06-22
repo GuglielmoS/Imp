@@ -345,12 +345,10 @@ public class CodeGenerator implements AstVisitor {
 
 	@Override
 	public void visitIf(IfStatement ifStmt) {
-		// push (cond.left - cond.right) onto the stack
+		// execute the condition check
 		Condition cond = ifStmt.getCondition();
 		cond.getLeft().accept(this);
 		cond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
 		// evaluate the result accordingly to the condition type
 		Label alternativeOrEnd = new Label();
 		mv.visitJumpInsn(getConditionOpcode(cond.getType()), alternativeOrEnd);
@@ -376,12 +374,10 @@ public class CodeGenerator implements AstVisitor {
 		Label loop = new Label();
 		mv.visitLabel(loop);
 
-		// compute (cond.left - cond.right) onto the stack
+		// execute the condition check
 		Condition cond = whileStmt.getCondition();
 		cond.getLeft().accept(this);
 		cond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
 		// evaluate the result accordingly to the condition type
 		Label end = new Label();
 		mv.visitJumpInsn(getConditionOpcode(cond.getType()), end);
@@ -403,12 +399,10 @@ public class CodeGenerator implements AstVisitor {
 		// body
 		doWhileStmt.getBody().accept(this);
 
-		// compute (cond.left - cond.right) onto the stack
+		// execute the condition check
 		Condition cond = doWhileStmt.getCondition();
 		cond.getLeft().accept(this);
 		cond.getRight().accept(this);
-		mv.visitInsn(ISUB);
-
 		// evaluate the result accordingly to the condition type
 		Label end = new Label();
 		mv.visitJumpInsn(getConditionOpcode(cond.getType()), end);
@@ -450,16 +444,14 @@ public class CodeGenerator implements AstVisitor {
 		// exit if the iteration variable is greater than end
 		mv.visitVarInsn(ILOAD, iterIndex);
 		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitInsn(ISUB);
-		mv.visitJumpInsn(IFGT, end);
+		mv.visitJumpInsn(IF_ICMPGT, end);
 		mv.visitJumpInsn(GOTO, body);
 
 		// exit if the iteration variable is lower than end
 		mv.visitLabel(checkLower);
 		mv.visitVarInsn(ILOAD, iterIndex);
 		mv.visitVarInsn(ILOAD, endIndex);
-		mv.visitInsn(ISUB);
-		mv.visitJumpInsn(IFLT, end);
+		mv.visitJumpInsn(IF_ICMPLT, end);
 
 		// loop's body
 		mv.visitLabel(body);
@@ -484,12 +476,12 @@ public class CodeGenerator implements AstVisitor {
 
 	private int getConditionOpcode(ConditionType type) {
 		switch (type) {
-			case EQ: return IFNE;
-			case NE: return IFEQ;
-			case GE: return IFLT;
-			case GT: return IFLE;
-			case LE: return IFGT;
-			case LT: return IFGE;
+			case EQ: return IF_ICMPNE;
+			case NE: return IF_ICMPEQ;
+			case GE: return IF_ICMPLT;
+			case GT: return IF_ICMPLE;
+			case LE: return IF_ICMPGT;
+			case LT: return IF_ICMPGE;
 			default: throw new IllegalStateException("Invalid condition given: " + type);
 		}
 	}

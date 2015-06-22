@@ -11,6 +11,14 @@ public class ConditionFactory {
 		return new Condition(ConditionType.NE, left, right);
 	}
 
+	public static Condition aeq(Expr left, Expr right) {
+		return new Condition(ConditionType.AEQ, left, right);
+	}
+
+	public static Condition ane(Expr left, Expr right) {
+		return new Condition(ConditionType.ANE, left, right);
+	}
+
 	public static Condition lt(Expr left, Expr right) {
 		return new Condition(ConditionType.LT, left, right);
 	}
