@@ -35,6 +35,7 @@ import static it.unimi.di.fachini.imp.compiler.verification.ImpType.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class TypeCheckerVisitor implements AstVisitor {
 	private final Stack<List<ImpType>> expectedTypes;
@@ -47,11 +48,18 @@ public class TypeCheckerVisitor implements AstVisitor {
 		expectedTypes.push(Arrays.asList(types));
 	}
 
+	private String prettifyExpected() {
+		return expectedTypes.peek()
+							.stream()
+							.map(ImpType::toString)
+							.collect(Collectors.joining(" or "));
+	}
+
 	private void found(ImpType type) {
 		if (expectedTypes.peek().contains(type))
 			expectedTypes.pop();
 		else
-			throw new TypeError("Expected " + expectedTypes.peek() + ", found " + type);
+			throw new TypeError("Expected " + prettifyExpected() + ", found " + type);
 	}
 
 	@Override

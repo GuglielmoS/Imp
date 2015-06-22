@@ -16,6 +16,8 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.io.IOStatementFactory;
 import it.unimi.di.fachini.imp.compiler.declaration.Declaration;
 import it.unimi.di.fachini.imp.compiler.declaration.DeclarationFactory;
 import it.unimi.di.fachini.imp.compiler.error.*;
+import it.unimi.di.fachini.imp.scanner.Scanner;
+import java_cup.runtime.Symbol;
 import java.util.List;
 import java.util.ArrayList;
 import java_cup.runtime.XMLElement;
@@ -376,6 +378,14 @@ public class Parser extends java_cup.runtime.lr_parser {
   public int error_sym() {return 1;}
 
 
+
+	public void unrecovered_syntax_error(Symbol curToken) {
+		Scanner scanner = (Scanner)getScanner();
+		throw new CompilerError("syntax error @ line " + 
+			scanner.currentLineNumber() + " while reading '" + scanner.yytext() + "'");
+	}
+
+
 /** Cup generated class to encapsulate user supplied action code.*/
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
 class CUP$Parser$actions {
@@ -390,14 +400,14 @@ class CUP$Parser$actions {
 	// utility for declaring variables
 	protected Descriptor declareVariable(String ident) {
 		if (symbolTable.contains(ident))
-			throw new CompilerError("Multiple declaration of: " + ident);
+			throw new CompilerError("multiple declaration of '" + ident + "'");
 		return symbolTable.addIdent(ident);
 	}
 
 	// utility for retrieving a declared variable
 	protected Descriptor getVariable(String ident) {
 		if (!symbolTable.contains(ident))
-			throw new CompilerError("Undeclared identifier: " + ident);	
+			throw new CompilerError("undeclared identifier '" + ident + "'");	
 		return symbolTable.get(ident);
 	}
 

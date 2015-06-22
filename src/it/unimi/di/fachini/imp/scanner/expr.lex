@@ -7,6 +7,7 @@ import java_cup.runtime.*;
 %% 
 
 %cup
+%line
 %public
 %class Scanner
 
@@ -20,6 +21,10 @@ import java_cup.runtime.*;
 		this(in);
 		this.sf = sf;
     }
+
+	public int currentLineNumber() {
+		return yyline + 1;
+	}
 %}
 
 Digit = [:digit:]

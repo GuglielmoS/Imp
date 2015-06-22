@@ -1,0 +1,4 @@
+var i;
+ref a;
+
+a = i;
