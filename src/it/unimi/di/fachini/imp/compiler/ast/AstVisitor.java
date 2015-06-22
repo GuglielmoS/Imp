@@ -18,6 +18,7 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.ForEachStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
@@ -59,4 +60,5 @@ public interface AstVisitor {
 	void visitWhile(WhileStatement whileStmt);
 	void visitDoWhile(DoWhileStatement whileStmt);
 	void visitFor(ForStatement forStmt);
+	void visitForEach(ForEachStatement forEachStmt);
 }

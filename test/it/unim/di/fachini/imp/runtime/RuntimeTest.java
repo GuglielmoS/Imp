@@ -14,6 +14,11 @@ public class RuntimeTest {
 		assertEquals("000", Util.runProgram("var a, b, c; write a; write b; write c;", ""));
 	}
 
+	@Test
+	public void testUninitializedArrays() throws Exception {
+		assertEquals("000", Util.runProgram("ref a; a = new 3; var i; for (i=0,#a-1) write a[i];", ""));
+	}
+
 	/*
 	 * IO
 	 */
@@ -171,7 +176,12 @@ public class RuntimeTest {
 		assertEquals("", Util.runProgram("var i;for(i=0,-1)write i;", ""));
 		assertEquals("", Util.runProgram("var i;for(i=20,21,-1)write i;", ""));
 	}
-	
+
+	@Test
+	public void testForEach() throws Exception {
+		assertEquals("0000", Util.runProgram("ref a;a=new 4; var i;for(i:a) write i;", ""));
+	}
+
 	/*
 	 * BLOCK statement
 	 */

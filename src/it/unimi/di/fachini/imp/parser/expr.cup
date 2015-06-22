@@ -44,7 +44,7 @@ action code {:
  */
 
 // delimiters
-terminal COMMA, SEMI_COLON;
+terminal COMMA, COLON, SEMI_COLON;
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, UNARY;
 // array operators
@@ -182,6 +182,8 @@ forStmt ::= FOR OPEN_PAREN IDENT:ident ASSIGNTO expr:start COMMA expr:end CLOSE_
 		  	{: RESULT = StatementFactory.forStmt(body, getVariable(ident), start, end); :}
 		  | FOR OPEN_PAREN IDENT:ident ASSIGNTO expr:start COMMA expr:end COMMA expr:step CLOSE_PAREN stmt:body
 		  	{: RESULT = StatementFactory.forStmt(body, getVariable(ident), start, end, step); :}
+		  | FOR OPEN_PAREN IDENT:ident COLON IDENT:array CLOSE_PAREN stmt:body
+		  	{: RESULT = StatementFactory.forEachStmt(body, getVariable(ident), getVariable(array)); :}
 		  ;
 
 condition ::= expr:e1 LT expr:e2

@@ -27,6 +27,7 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.ForEachStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
@@ -86,6 +87,7 @@ public class CodeGenerator implements AstVisitor {
 	}
 
 	private void genMain(Program program, ClassWriter cw) {
+		// public static void main(String[])
 		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 		mv.visitCode();
 
@@ -101,7 +103,7 @@ public class CodeGenerator implements AstVisitor {
 	}
 
 	private void genExecute(Program program, ClassWriter cw) {
-		// public static void execute(InputStream in, PrintStream out)
+		// public static void execute(InputStream, PrintStream)
 		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
 							"execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V",
 							null, null);
@@ -180,8 +182,14 @@ public class CodeGenerator implements AstVisitor {
 
 	@Override
 	public void visitNewArray(NewArray expr) {
+		// create the new array with the specified size
 		expr.getSize().accept(this);
 		mv.visitIntInsn(NEWARRAY, T_INT);
+
+		// fill the created array with zeros by calling Arrays.fill(array, 0)
+		mv.visitInsn(DUP);
+		mv.visitInsn(ICONST_0);
+		mv.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "fill", "([II)V", false);		
 	}
 
 	@Override
@@ -437,7 +445,7 @@ public class CodeGenerator implements AstVisitor {
 		forStmt.getStep().accept(this);
 		mv.visitVarInsn(ISTORE, stepIndex);
 
-		// loop's start and end
+		// loop's start
 		mv.visitLabel(loop);
 
 		// check the condition accordingly to the step value (positive/negative)
@@ -471,6 +479,53 @@ public class CodeGenerator implements AstVisitor {
 
 		// loop's end
 		mv.visitLabel(end);
+
+		// destroy the local variable used for the step and the end variable
+		destroyLocal();
+		destroyLocal();
+	}
+
+	public void visitForEach(ForEachStatement forEachStmt) {
+		// reserve a local variable for the iteration
+		int iterIndex = reserveLocal();
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ISTORE, iterIndex);
+
+		// reserve a local variable for the array's length
+		int endIndex = reserveLocal();
+		mv.visitVarInsn(ALOAD, forEachStmt.getArray().getIndex());
+		mv.visitInsn(ARRAYLENGTH);
+		mv.visitVarInsn(ISTORE, endIndex);
+
+		// loop's label
+		Label loop = new Label();
+		Label condCheck = new Label();
+
+		// check the loop's condition
+		mv.visitJumpInsn(GOTO, condCheck);
+
+		// assign the current element to the iteration variable
+		mv.visitLabel(loop);
+		mv.visitVarInsn(ALOAD, forEachStmt.getArray().getIndex());
+		mv.visitVarInsn(ILOAD, iterIndex);
+		mv.visitInsn(IALOAD);
+		mv.visitVarInsn(ISTORE, forEachStmt.getIterVar().getIndex());
+
+		// loop's body
+		forEachStmt.getBody().accept(this);
+
+		// increment the iteration variable
+		mv.visitVarInsn(ILOAD, iterIndex);
+		mv.visitInsn(ICONST_1);
+		mv.visitInsn(IADD);
+		mv.visitVarInsn(ISTORE, iterIndex);
+
+		// check if we are at the loop's end
+		// (exit if the iteration variable is greater than end)
+		mv.visitLabel(condCheck);
+		mv.visitVarInsn(ILOAD, iterIndex);
+		mv.visitVarInsn(ILOAD, endIndex);
+		mv.visitJumpInsn(IF_ICMPLT, loop);
 
 		// destroy the local variable used for the step and the end variable
 		destroyLocal();

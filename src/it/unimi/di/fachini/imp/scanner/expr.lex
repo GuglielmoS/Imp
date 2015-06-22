@@ -48,6 +48,7 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	 * Delimiters
 	 */
 	
+	":" {return sf.newSymbol("COLON", ParserSym.COLON);}
 	";" {return sf.newSymbol("SEMI_COLON", ParserSym.SEMI_COLON);}
 	"," {return sf.newSymbol("COMMA", ParserSym.COMMA);}
 

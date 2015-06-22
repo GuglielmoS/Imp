@@ -165,15 +165,33 @@ public class ScannerTest {
 
 	@Test
 	public void testDelimiters() {
-		StringReader buf = new StringReader(",;()");
+		StringReader buf = new StringReader(",:;");
 		ComplexSymbolFactory sf = new ComplexSymbolFactory();
 		Scanner scanner = new Scanner(buf, sf);
 
 		try {
 			assertEquals(ParserSym.COMMA, scanner.next_token().sym);
+			assertEquals(ParserSym.COLON, scanner.next_token().sym);
 			assertEquals(ParserSym.SEMI_COLON, scanner.next_token().sym);
+			assertEquals(ParserSym.EOF, scanner.next_token().sym);
+		} catch (IOException e) {
+			fail("Scanner error: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testParenthesis() {
+		StringReader buf = new StringReader("()[]{}");
+		ComplexSymbolFactory sf = new ComplexSymbolFactory();
+		Scanner scanner = new Scanner(buf, sf);
+
+		try {
 			assertEquals(ParserSym.OPEN_PAREN, scanner.next_token().sym);
 			assertEquals(ParserSym.CLOSE_PAREN, scanner.next_token().sym);
+			assertEquals(ParserSym.OPEN_SQUARE_BRACKET, scanner.next_token().sym);
+			assertEquals(ParserSym.CLOSE_SQUARE_BRACKET, scanner.next_token().sym);
+			assertEquals(ParserSym.OPEN_CURLY_BRACE, scanner.next_token().sym);
+			assertEquals(ParserSym.ClOSE_CURLY_BRACE, scanner.next_token().sym);
 			assertEquals(ParserSym.EOF, scanner.next_token().sym);
 		} catch (IOException e) {
 			fail("Scanner error: " + e.getMessage());

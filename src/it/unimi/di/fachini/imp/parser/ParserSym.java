@@ -8,50 +8,52 @@ package it.unimi.di.fachini.imp.parser;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int ASSIGNTO = 17;
-  public static final int OPEN_PAREN = 18;
-  public static final int GE = 16;
-  public static final int FOR = 32;
-  public static final int MINUS = 5;
-  public static final int REF = 25;
-  public static final int WRITE = 33;
-  public static final int WRITEMSG = 34;
-  public static final int CLOSE_SQUARE_BRACKET = 23;
-  public static final int LT = 13;
-  public static final int CLOSE_PAREN = 19;
+  public static final int ASSIGNTO = 18;
+  public static final int OPEN_PAREN = 19;
+  public static final int GE = 17;
+  public static final int FOR = 33;
+  public static final int MINUS = 6;
+  public static final int REF = 26;
+  public static final int WRITE = 34;
+  public static final int WRITEMSG = 35;
+  public static final int CLOSE_SQUARE_BRACKET = 24;
+  public static final int LT = 14;
+  public static final int CLOSE_PAREN = 20;
   public static final int COMMA = 2;
-  public static final int DIV = 7;
-  public static final int NUM = 37;
-  public static final int PLUS = 4;
-  public static final int WRITELN = 35;
-  public static final int IF = 28;
-  public static final int LE = 15;
+  public static final int DIV = 8;
+  public static final int NUM = 38;
+  public static final int PLUS = 5;
+  public static final int WRITELN = 36;
+  public static final int IF = 29;
+  public static final int LE = 16;
   public static final int EOF = 0;
-  public static final int ClOSE_CURLY_BRACE = 21;
-  public static final int NEW = 26;
+  public static final int ClOSE_CURLY_BRACE = 22;
+  public static final int NEW = 27;
   public static final int error = 1;
-  public static final int UNARY = 9;
-  public static final int MUL = 6;
-  public static final int OPEN_SQUARE_BRACKET = 22;
-  public static final int OPEN_CURLY_BRACE = 20;
-  public static final int SEMI_COLON = 3;
-  public static final int NULL = 27;
-  public static final int MOD = 8;
-  public static final int IDENT = 38;
-  public static final int EQ = 11;
-  public static final int SHARP = 10;
-  public static final int ELSE = 29;
-  public static final int READ = 36;
-  public static final int WHILE = 30;
-  public static final int NE = 12;
-  public static final int STRING = 39;
-  public static final int GT = 14;
-  public static final int VAR = 24;
-  public static final int DO = 31;
+  public static final int UNARY = 10;
+  public static final int MUL = 7;
+  public static final int OPEN_SQUARE_BRACKET = 23;
+  public static final int OPEN_CURLY_BRACE = 21;
+  public static final int SEMI_COLON = 4;
+  public static final int NULL = 28;
+  public static final int MOD = 9;
+  public static final int IDENT = 39;
+  public static final int EQ = 12;
+  public static final int COLON = 3;
+  public static final int SHARP = 11;
+  public static final int ELSE = 30;
+  public static final int READ = 37;
+  public static final int WHILE = 31;
+  public static final int NE = 13;
+  public static final int STRING = 40;
+  public static final int GT = 15;
+  public static final int VAR = 25;
+  public static final int DO = 32;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "COMMA",
+  "COLON",
   "SEMI_COLON",
   "PLUS",
   "MINUS",

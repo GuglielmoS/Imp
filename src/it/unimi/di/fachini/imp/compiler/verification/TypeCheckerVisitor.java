@@ -22,6 +22,7 @@ import it.unimi.di.fachini.imp.compiler.ast.statement.AssignVarStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.BlockStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.DoWhileStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.EmptyStatement;
+import it.unimi.di.fachini.imp.compiler.ast.statement.ForEachStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.ForStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.IfStatement;
 import it.unimi.di.fachini.imp.compiler.ast.statement.WhileStatement;
@@ -287,5 +288,19 @@ public class TypeCheckerVisitor implements AstVisitor {
 		// check the body
 		expected(STATEMENT);
 		forStmt.getBody().accept(this);
+	}
+
+	@Override
+	public void visitForEach(ForEachStatement forEachStmt) {
+		found(STATEMENT);
+		// check the iteration var
+		if (forEachStmt.getIterVar().isRef())
+			throw new TypeError("The iteration variable must not be a reference!");
+		// check the array ref
+		if (!forEachStmt.getArray().isRef())
+			throw new TypeError("The foreach wants a reference!");
+		// check the body
+		expected(STATEMENT);
+		forEachStmt.getBody().accept(this);
 	}
 }

@@ -55,6 +55,10 @@ public class StatementFactory {
 		return new ForStatement(body, iterVar, start, end, step);
 	}
 
+	public static Statement forEachStmt(Statement body, Descriptor iterVar, Descriptor array) {
+		return new ForEachStatement(body, iterVar, array);
+	}
+
 	public static Statement block(List<Statement> statements) {
 		return new BlockStatement(statements);
 	}
