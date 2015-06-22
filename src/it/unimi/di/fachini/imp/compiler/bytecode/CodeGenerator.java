@@ -65,7 +65,7 @@ public class CodeGenerator implements AstVisitor {
 	private int destroyLocal() {
 		return --nextLocalVar;
 	}
-	
+
 	public byte[] compile(Program program) {
 		resetLocalVariables();
 
@@ -125,6 +125,14 @@ public class CodeGenerator implements AstVisitor {
 		for (Declaration decl : program.getDeclarations()) {
 			for (Descriptor descriptor : decl.getDeclaredIdentifiers()) {
 				descriptor.setIndex(reserveLocal());
+				// initialize the variable to 0 if it's an integer or null if it's a ref
+				if (descriptor.isRef()) {
+					mv.visitInsn(ACONST_NULL);
+					mv.visitVarInsn(ASTORE, descriptor.getIndex());
+				} else {
+					mv.visitInsn(ICONST_0);
+					mv.visitVarInsn(ISTORE, descriptor.getIndex());
+				}
 			}
 		}
 

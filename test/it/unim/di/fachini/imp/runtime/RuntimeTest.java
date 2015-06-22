@@ -8,6 +8,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class RuntimeTest {
+
+	@Test
+	public void testUninitializedVariables() throws Exception {
+		assertEquals("000", Util.runProgram("var a, b, c; write a; write b; write c;", ""));
+	}
+
 	/*
 	 * IO
 	 */
