@@ -2,7 +2,44 @@ package it.unimi.di.fachini.imp.compiler.bytecode;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.IALOAD;
+import static org.objectweb.asm.Opcodes.IASTORE;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IDIV;
+import static org.objectweb.asm.Opcodes.IFLT;
+import static org.objectweb.asm.Opcodes.IF_ACMPEQ;
+import static org.objectweb.asm.Opcodes.IF_ACMPNE;
+import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
+import static org.objectweb.asm.Opcodes.IF_ICMPGE;
+import static org.objectweb.asm.Opcodes.IF_ICMPGT;
+import static org.objectweb.asm.Opcodes.IF_ICMPLE;
+import static org.objectweb.asm.Opcodes.IF_ICMPLT;
+import static org.objectweb.asm.Opcodes.IF_ICMPNE;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.IMUL;
+import static org.objectweb.asm.Opcodes.INEG;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.ISTORE;
+import static org.objectweb.asm.Opcodes.ISUB;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.NEWARRAY;
+import static org.objectweb.asm.Opcodes.NOP;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.T_INT;
+import static org.objectweb.asm.Opcodes.V1_8;
 import it.unimi.di.fachini.imp.compiler.Descriptor;
 import it.unimi.di.fachini.imp.compiler.Program;
 import it.unimi.di.fachini.imp.compiler.ast.AstVisitor;
@@ -51,7 +88,7 @@ public class CodeGenerator implements AstVisitor {
 	public CodeGenerator(String programName) {
 		this.programName = programName;
 	}
-	
+
 	private void resetLocalVariables() {
 		nextLocalVar = 0;
 		scannerIndex = 0;
@@ -88,29 +125,32 @@ public class CodeGenerator implements AstVisitor {
 
 	private void genMain(Program program, ClassWriter cw) {
 		// public static void main(String[])
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
+				"([Ljava/lang/String;)V", null, null);
 		mv.visitCode();
 
 		// execute the program by calling execute(System.in, System.out)
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-		mv.visitMethodInsn(INVOKESTATIC, programName, "execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V", false);
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in",
+				"Ljava/io/InputStream;");
+		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
+				"Ljava/io/PrintStream;");
+		mv.visitMethodInsn(INVOKESTATIC, programName, "execute",
+				"(Ljava/io/InputStream;Ljava/io/PrintStream;)V", false);
 
 		// exit from the main method
 		mv.visitInsn(RETURN);
-		mv.visitMaxs(-1,-1);
+		mv.visitMaxs(-1, -1);
 		mv.visitEnd();
 	}
 
 	private void genExecute(Program program, ClassWriter cw) {
 		// public static void execute(InputStream, PrintStream)
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
-							"execute", "(Ljava/io/InputStream;Ljava/io/PrintStream;)V",
-							null, null);
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "execute",
+				"(Ljava/io/InputStream;Ljava/io/PrintStream;)V", null, null);
 		mv.visitCode();
 
 		// reserve a local variable for each argument
-		inputIndex = reserveLocal();  // InputStream in
+		inputIndex = reserveLocal(); // InputStream in
 		outputIndex = reserveLocal(); // PrintStream out
 
 		// create a new java.util.Scanner object
@@ -118,7 +158,8 @@ public class CodeGenerator implements AstVisitor {
 		mv.visitInsn(DUP);
 		// retrieve the input stream from the local variables
 		mv.visitVarInsn(ALOAD, inputIndex);
-		mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
+		mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>",
+				"(Ljava/io/InputStream;)V", false);
 		// store the created object as a local variable
 		scannerIndex = reserveLocal();
 		mv.visitVarInsn(ASTORE, scannerIndex);
@@ -127,7 +168,8 @@ public class CodeGenerator implements AstVisitor {
 		for (Declaration decl : program.getDeclarations()) {
 			for (Descriptor descriptor : decl.getDeclaredIdentifiers()) {
 				descriptor.setIndex(reserveLocal());
-				// initialize the variable to 0 if it's an integer or null if it's a ref
+				// initialize the variable to 0 if it's an integer or null if
+				// it's a ref
 				if (descriptor.isRef()) {
 					mv.visitInsn(ACONST_NULL);
 					mv.visitVarInsn(ASTORE, descriptor.getIndex());
@@ -189,7 +231,7 @@ public class CodeGenerator implements AstVisitor {
 		// fill the created array with zeros by calling Arrays.fill(array, 0)
 		mv.visitInsn(DUP);
 		mv.visitInsn(ICONST_0);
-		mv.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "fill", "([II)V", false);		
+		mv.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "fill", "([II)V", false);
 	}
 
 	@Override
@@ -297,7 +339,8 @@ public class CodeGenerator implements AstVisitor {
 		mv.visitLdcInsn(writeMsgStmt.getMessage());
 
 		// invoke the 'print' method (defined in the PrintStream class)
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print",
+				"(Ljava/lang/String;)V", false);
 	}
 
 	@Override
@@ -534,15 +577,24 @@ public class CodeGenerator implements AstVisitor {
 
 	private int getConditionOpcode(ConditionType type) {
 		switch (type) {
-			case AEQ: return IF_ACMPNE;
-			case ANE: return IF_ACMPEQ;
-			case EQ: return IF_ICMPNE;
-			case NE: return IF_ICMPEQ;
-			case GE: return IF_ICMPLT;
-			case GT: return IF_ICMPLE;
-			case LE: return IF_ICMPGT;
-			case LT: return IF_ICMPGE;
-			default: throw new IllegalStateException("Invalid condition given: " + type);
+		case AEQ:
+			return IF_ACMPNE;
+		case ANE:
+			return IF_ACMPEQ;
+		case EQ:
+			return IF_ICMPNE;
+		case NE:
+			return IF_ICMPEQ;
+		case GE:
+			return IF_ICMPLT;
+		case GT:
+			return IF_ICMPLE;
+		case LE:
+			return IF_ICMPGT;
+		case LT:
+			return IF_ICMPGE;
+		default:
+			throw new IllegalStateException("Invalid condition given: " + type);
 		}
 	}
 }

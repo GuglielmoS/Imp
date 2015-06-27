@@ -15,8 +15,7 @@ public class IfStatement extends Statement {
 		this.alternative = null;
 	}
 
-	public IfStatement(Condition condition, Statement consequent,
-			Statement alternative) {
+	public IfStatement(Condition condition, Statement consequent, Statement alternative) {
 		this.condition = condition;
 		this.consequent = consequent;
 		this.alternative = alternative;

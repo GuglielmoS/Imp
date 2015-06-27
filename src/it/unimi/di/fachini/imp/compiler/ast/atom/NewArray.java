@@ -9,7 +9,7 @@ public class NewArray extends Expr {
 	NewArray(Expr size) {
 		this.size = size;
 	}
-	
+
 	public Expr getSize() {
 		return size;
 	}

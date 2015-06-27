@@ -23,7 +23,7 @@ public class ForStatement extends Statement {
 	public Statement getBody() {
 		return body;
 	}
-	
+
 	public Descriptor getIterVar() {
 		return iterVar;
 	}

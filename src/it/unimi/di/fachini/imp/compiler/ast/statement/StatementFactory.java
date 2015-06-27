@@ -18,9 +18,9 @@ public class StatementFactory {
 
 	public static Statement assign(Variable var, Expr value) {
 		if (var.isArrayElem())
-			return assignArray((ArrayElem)var, value);
+			return assignArray((ArrayElem) var, value);
 		else
-			return assignVar((Var)var, value);
+			return assignVar((Var) var, value);
 	}
 
 	private static Statement assignVar(Var var, Expr value) {
@@ -51,7 +51,7 @@ public class StatementFactory {
 		return forStmt(body, iterVar, start, end, AtomFactory.num(1));
 	}
 
-	public static Statement forStmt(Statement body, Descriptor iterVar, Expr start, Expr end, Expr step) {
+	public static Statement forStmt(Statement body, Descriptor iterVar,	Expr start, Expr end, Expr step) {
 		return new ForStatement(body, iterVar, start, end, step);
 	}
 

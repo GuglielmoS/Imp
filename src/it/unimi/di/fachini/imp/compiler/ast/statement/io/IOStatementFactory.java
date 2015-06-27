@@ -10,16 +10,16 @@ public class IOStatementFactory {
 	public static Statement write(Expr expr) {
 		return new WriteStatement(expr);
 	}
-	
+
 	public static Statement writeMessage(String message) {
 		return new WriteMessageStatement(message);
 	}
 
 	public static Statement read(Variable var) {
 		if (var.isArrayElem()) {
-			return new ReadArrayElemStatement((ArrayElem)var);
+			return new ReadArrayElemStatement((ArrayElem) var);
 		} else {
-			return new ReadVarStatement((Var)var);
+			return new ReadVarStatement((Var) var);
 		}
 	}
 }

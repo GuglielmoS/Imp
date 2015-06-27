@@ -44,7 +44,7 @@ public interface AstVisitor {
 	void visitMod(ModExpr expr);
 	void visitUnaryPlus(UnaryPlusExpr expr);
 	void visitUnaryMinus(UnaryMinusExpr expr);
-	
+
 	// IO statements
 	void visitWrite(WriteStatement writeStmt);
 	void visitWriteMessage(WriteMessageStatement writeMsgStmt);

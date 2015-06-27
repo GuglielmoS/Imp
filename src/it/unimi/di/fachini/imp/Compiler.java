@@ -45,7 +45,7 @@ public class Compiler {
 	public byte[] getBytecode() {
 		return bytecode;
 	}
-	
+
 	public String getProgramName() {
 		return programName;
 	}

@@ -70,6 +70,7 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	/*
 	 * Array operators
 	 */
+
 	"#" {return sf.newSymbol("SHARP", ParserSym.SHARP);}
 
 	/*
@@ -133,6 +134,7 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	/*
 	 * Strings
 	 */
+
 	\" {stringBuffer.setLength(0); yybegin(STRING);}
 	
 	/*

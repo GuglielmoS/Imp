@@ -15,7 +15,7 @@ public class SymbolTable {
 			Descriptor descriptor = new Descriptor(ident);
 			values.put(ident, descriptor);
 		}
-	
+
 		return values.get(ident);
 	}
 
