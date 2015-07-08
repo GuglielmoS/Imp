@@ -46,7 +46,7 @@ import java.util.HashMap;
 	}
 
 	protected boolean isReservedKeyword(String ident) {
-		return reservedKeywords.containsKey(ident);
+		return reservedKeywords.containsKey(ident.toLowerCase());
 	}
 
 	protected Symbol getReservedKeywordToken(String ident) {
