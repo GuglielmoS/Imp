@@ -4,6 +4,9 @@ import it.unimi.di.fachini.imp.parser.ParserSym;
 
 import java_cup.runtime.*;
 
+import java.util.Map;
+import java.util.HashMap;
+
 %% 
 
 %cup
@@ -15,12 +18,40 @@ import java_cup.runtime.*;
 
 %{
 	protected ComplexSymbolFactory sf;
-	protected StringBuffer stringBuffer = new StringBuffer();
+	protected StringBuffer stringBuffer;
+	protected Map<String, Integer> reservedKeywords;
 	
     public Scanner(java.io.Reader in, ComplexSymbolFactory sf) {
 		this(in);
 		this.sf = sf;
+		this.stringBuffer = new StringBuffer();
+		this.reservedKeywords = new HashMap<>();
+		initReservedKeywords();
     }
+
+	protected void initReservedKeywords() {
+		reservedKeywords.put("var", ParserSym.VAR);
+		reservedKeywords.put("ref", ParserSym.REF);
+		reservedKeywords.put("new", ParserSym.NEW);
+		reservedKeywords.put("null", ParserSym.NULL);
+		reservedKeywords.put("if", ParserSym.IF);
+		reservedKeywords.put("else", ParserSym.ELSE);
+		reservedKeywords.put("while", ParserSym.WHILE);
+		reservedKeywords.put("do", ParserSym.DO);
+		reservedKeywords.put("for", ParserSym.FOR);
+		reservedKeywords.put("write", ParserSym.WRITE);
+		reservedKeywords.put("writemsg", ParserSym.WRITEMSG);
+		reservedKeywords.put("writeln", ParserSym.WRITELN);
+		reservedKeywords.put("read", ParserSym.READ);
+	}
+
+	protected boolean isReservedKeyword(String ident) {
+		return reservedKeywords.containsKey(ident);
+	}
+
+	protected Symbol getReservedKeywordToken(String ident) {
+		return sf.newSymbol(ident, reservedKeywords.get(ident));
+	}
 
 	public int currentLineNumber() {
 		return yyline + 1;
@@ -102,41 +133,30 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 	"=" {return sf.newSymbol("ASSIGNTO", ParserSym.ASSIGNTO);}
 
 	/*
-	 * Reserved keywords
-	 */
-
-	"var"		{return sf.newSymbol("VAR", ParserSym.VAR);}
-	"ref"		{return sf.newSymbol("REF", ParserSym.REF);}
-	"new"		{return sf.newSymbol("NEW", ParserSym.NEW);}
-	"null"		{return sf.newSymbol("NULL", ParserSym.NULL);}
-	"if"		{return sf.newSymbol("IF", ParserSym.IF);}
-	"else"		{return sf.newSymbol("ELSE", ParserSym.ELSE);}
-	"while"		{return sf.newSymbol("WHILE", ParserSym.WHILE);}
-	"do"		{return sf.newSymbol("DO", ParserSym.DO);}
-	"for"		{return sf.newSymbol("FOR", ParserSym.FOR);}
-	"write"		{return sf.newSymbol("WRITE", ParserSym.WRITE);}
-	"writemsg"	{return sf.newSymbol("WRITEMSG", ParserSym.WRITEMSG);}
-	"writeln"	{return sf.newSymbol("WRITELN", ParserSym.WRITELN);}
-	"read"		{return sf.newSymbol("READ", ParserSym.READ);}
-
-	/*
 	 * Numbers
 	 */
-	
+
 	{Digit}+ {return sf.newSymbol("NUM", ParserSym.NUM, new Integer(yytext()));}
-	
+
 	/*
-	 * Identifiers
+	 * Identifiers & Reserved Keywords
 	 */
-	
-	{Letter}({Letter}|{Digit})* {return sf.newSymbol("IDENT", ParserSym.IDENT, yytext());}
-	
+
+	{Letter}({Letter}|{Digit})* {
+		String ident = yytext();
+		if (isReservedKeyword(ident)) {
+			return getReservedKeywordToken(ident);
+		} else {
+			return sf.newSymbol("IDENT", ParserSym.IDENT, ident);
+		}
+	}
+
 	/*
 	 * Strings
 	 */
 
 	\" {stringBuffer.setLength(0); yybegin(STRING);}
-	
+
 	/*
 	 * Other
 	 */
